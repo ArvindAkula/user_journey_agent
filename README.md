@@ -8,9 +8,9 @@
 ## 📖 Documentation
 
 - **[Complete Project Overview](PROJECT_OVERVIEW.md)** - Features, architecture, and technical details
-- **[AI Services Explained](AI_SERVICES_EXPLAINED.md)** - Understanding Bedrock, Nova Micro, SageMaker, and Kinesis
-- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - How to deploy to production
-- **[Security Cleanup](SECURITY_CLEANUP.md)** - Security best practices before going public
+- **[AI Services Explained](markdown/AI_SERVICES_EXPLAINED.md)** - Understanding Bedrock, Nova Micro, SageMaker, and Kinesis
+- **[Deployment Guide](markdown/DEPLOYMENT_GUIDE.md)** - How to deploy to production
+- **[Security Cleanup](markdown/SECURITY_CLEANUP.md)** - Security best practices before going public
 
 ---
 
