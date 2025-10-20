@@ -341,12 +341,4 @@ Before deploying to production:
 
 ---
 
-## Need Help?
-
-- Check `DEPLOYMENT_GUIDE.md` for detailed deployment instructions
-- Review `SECURITY_CLEANUP.md` for security best practices
-- See `AI_SERVICES_EXPLAINED.md` for AI services setup
-
----
-
 **Ready to go!** 🚀
