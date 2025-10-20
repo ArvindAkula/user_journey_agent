@@ -1,3 +1,41 @@
+# User Journey Analytics Agent
+## AI-Powered User Experience Platform
+
+> Transforming user struggles into opportunities through real-time AI intervention and predictive analytics
+
+---
+
+## 📖 Documentation
+
+- **[Complete Project Overview](PROJECT_OVERVIEW.md)** - Features, architecture, and technical details
+- **[AI Services Explained](AI_SERVICES_EXPLAINED.md)** - Understanding Bedrock, Nova Micro, SageMaker, and Kinesis
+- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - How to deploy to production
+- **[Security Cleanup](SECURITY_CLEANUP.md)** - Security best practices before going public
+
+---
+
+## 🚀 What It Does
+
+**User Journey Analytics Agent** is a comprehensive AI-powered platform that detects user struggles in real-time and triggers intelligent interventions to improve conversion rates and user satisfaction.
+
+### Key Features
+
+- ⚡ **Real-Time Struggle Detection** - Detects friction points within seconds
+- 🤖 **AI-Powered Analysis** - Amazon Bedrock Nova Micro analyzes user behavior
+- 📊 **Predictive Analytics** - 85%+ accuracy exit risk prediction with SageMaker
+- 💬 **Automated Interventions** - Context-aware live chat offers
+- 📈 **Analytics Dashboard** - Real-time metrics and insights
+
+### Tech Stack
+
+- **Frontend:** React.js + TypeScript
+- **Backend:** Spring Boot (Java 17)
+- **AI Services:** Amazon Bedrock (Nova Micro), Amazon SageMaker
+- **Event Processing:** AWS Lambda, Kinesis, DynamoDB
+- **Authentication:** Firebase
+
+---
+
 # Environment Setup Guide
 
 ## Quick Start
@@ -226,16 +264,23 @@ aws bedrock list-foundation-models --region us-east-1
    curl http://localhost:8080/api/health
    ```
 
-3. **Start Frontend:**
+3. **Start User App (Frontend):**
    ```bash
    cd packages/user-app
+   npm install
    npm start
    ```
 
-4. **Open Browser:**
+4. **Start Analytics Dashboard (Optional):**
+   ```bash
+   cd packages/analytics-dashboard
+   npm install
+   npm start
    ```
-   http://localhost:3000
-   ```
+
+5. **Open Browser:**
+   - **User App:** http://localhost:3000
+   - **Analytics Dashboard:** http://localhost:3001
 
 ---
 
