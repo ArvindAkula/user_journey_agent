@@ -1,0 +1,97 @@
+notifiers:
+  - name: slack-alerts
+    type: slack
+    uid: slack-alerts
+    org_id: 1
+    is_default: true
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: "10s"
+    settings:
+      url: "${SLACK_WEBHOOK_URL}"
+      channel: "#alerts"
+      username: "Grafana"
+      title: "User Journey Analytics Alert"
+      text: |
+        {{ range .Alerts }}
+        **Alert:** {{ .Annotations.summary }}
+        **Description:** {{ .Annotations.description }}
+        **Severity:** {{ .Labels.severity }}
+        **Service:** {{ .Labels.service }}
+        {{ end }}
+      iconEmoji: ":exclamation:"
+      iconUrl: ""
+
+  - name: email-alerts
+    type: email
+    uid: email-alerts
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: "10s"
+    settings:
+      addresses: "${ALERT_EMAIL_ADDRESSES}"
+      subject: "User Journey Analytics Alert - {{ .CommonLabels.alertname }}"
+      body: |
+        <h2>Alert Details</h2>
+        {{ range .Alerts }}
+        <h3>{{ .Annotations.summary }}</h3>
+        <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+        <p><strong>Severity:</strong> {{ .Labels.severity }}</p>
+        <p><strong>Service:</strong> {{ .Labels.service }}</p>
+        <p><strong>Started:</strong> {{ .StartsAt }}</p>
+        {{ if .Annotations.runbook_url }}
+        <p><a href="{{ .Annotations.runbook_url }}">Runbook</a></p>
+        {{ end }}
+        {{ end }}
+
+  - name: pagerduty-critical
+    type: pagerduty
+    uid: pagerduty-critical
+    org_id: 1
+    is_default: false
+    send_reminder: false
+    disable_resolve_message: false
+    frequency: "10s"
+    settings:
+      integrationKey: "${PAGERDUTY_INTEGRATION_KEY}"
+      severity: "critical"
+      class: "user-journey-analytics"
+      component: "monitoring"
+      group: "production"
+      summary: "{{ .CommonLabels.alertname }}: {{ .CommonAnnotations.summary }}"
+
+  - name: webhook-alerts
+    type: webhook
+    uid: webhook-alerts
+    org_id: 1
+    is_default: false
+    send_reminder: false
+    disable_resolve_message: false
+    frequency: "10s"
+    settings:
+      url: "${WEBHOOK_URL}"
+      httpMethod: "POST"
+      username: ""
+      password: ""
+      title: "User Journey Analytics Alert"
+      body: |
+        {
+          "alertname": "{{ .CommonLabels.alertname }}",
+          "status": "{{ .Status }}",
+          "severity": "{{ .CommonLabels.severity }}",
+          "service": "{{ .CommonLabels.service }}",
+          "summary": "{{ .CommonAnnotations.summary }}",
+          "description": "{{ .CommonAnnotations.description }}",
+          "alerts": [
+            {{ range .Alerts }}
+            {
+              "labels": {{ .Labels | toJSON }},
+              "annotations": {{ .Annotations | toJSON }},
+              "startsAt": "{{ .StartsAt }}",
+              "endsAt": "{{ .EndsAt }}"
+            }{{ if not (last .) }},{{ end }}
+            {{ end }}
+          ]
+        }

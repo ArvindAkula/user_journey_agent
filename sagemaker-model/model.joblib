@@ -1,0 +1,8 @@
+# Placeholder model file for SageMaker
+# This would normally contain a serialized ML model
+model_metadata = {
+    "model_type": "exit_risk_predictor",
+    "version": "1.0",
+    "features": ["session_duration", "page_views", "bounce_rate"],
+    "target": "exit_risk_score"
+}

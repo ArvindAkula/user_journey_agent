@@ -1,0 +1,1 @@
+# Note: Terraform version constraints and provider configurations are defined in main.tf

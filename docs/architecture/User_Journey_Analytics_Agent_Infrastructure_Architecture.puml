@@ -1,0 +1,139 @@
+@startuml User Journey Analytics Agent - Infrastructure Architecture
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam roundcorner 10
+skinparam shadowing true
+skinparam componentStyle rectangle
+
+title **User Journey Analytics Agent - Infrastructure Architecture**
+
+' Internet and external access
+cloud "🌐 Internet" as internet #lightblue
+
+' AWS Account boundary
+package "AWS Account" #FFFACD {
+    
+    ' VPC boundary
+    rectangle "**VPC**\n10.0.0.0/16" as vpc #E8F5E9 {
+        
+        ' Internet Gateway
+        component "🌉 Internet Gateway" as igw #90CAF9
+        
+        ' Public Subnets
+        rectangle "**Public Subnet AZ-1**\n10.0.1.0/24" as pubsub1 #B3E5FC {
+            component "🔀 NAT Gateway 1" as nat1 #4FC3F7
+        }
+        
+        rectangle "**Public Subnet AZ-2**\n10.0.2.0/24" as pubsub2 #B3E5FC {
+            component "🔀 NAT Gateway 2" as nat2 #4FC3F7
+        }
+        
+        ' Private Subnets
+        rectangle "**Private Subnet AZ-1**\n10.0.10.0/24" as privsub1 #C8E6C9 {
+            component "⚡ Lambda:\nEvent Processor" as lambda1 #FF9800
+            component "⚡ Lambda:\nStruggle Detector" as lambda2 #FF9800
+        }
+        
+        rectangle "**Private Subnet AZ-2**\n10.0.20.0/24" as privsub2 #C8E6C9 {
+            component "⚡ Lambda:\nVideo Analyzer" as lambda3 #FF9800
+            component "⚡ Lambda:\nIntervention Executor" as lambda4 #FF9800
+        }
+        
+        ' VPC Endpoints
+        rectangle "**VPC Endpoints**" as endpoints #FFF9C4 {
+            component "📦 S3 Endpoint" as s3ep #FFE082
+            component "📊 DynamoDB Endpoint" as dynamoep #FFE082
+            component "🤖 Bedrock Endpoint" as bedrockep #FFE082
+        }
+        
+        ' Security Groups
+        rectangle "**Security Groups**" as secgroups #FFCCBC {
+            component "🔒 Lambda SG" as lambdasg #FF8A65
+            component "🔒 VPC Endpoints SG" as endpointsg #FF8A65
+        }
+    }
+    
+    ' AWS Managed Services (outside VPC)
+    package "**AWS Managed Services**" #F3E5F5 {
+        database "📊 **DynamoDB**\nTables (4)" as dynamo #3B48CC
+        storage "📦 **S3**\nBuckets" as s3 #FF9900
+        database "⏱️ **Timestream**\nTime-series DB" as timestream #9C27B0
+        queue "🌊 **Kinesis**\nData Streams" as kinesis #FF9900
+        component "🤖 **Bedrock**\nNova Micro" as bedrock #FF9900
+        component "🧠 **SageMaker**\nML Models" as sagemaker #FF9900
+        component "📈 **CloudWatch**\nMonitoring" as cloudwatch #FF9900
+        component "🔐 **IAM**\nRoles & Policies" as iam #DD2C00
+    }
+}
+
+' External connections
+internet --> igw : HTTPS Traffic
+
+' Internal VPC connections
+igw --> pubsub1
+igw --> pubsub2
+nat1 --> privsub1 : Outbound Internet
+nat2 --> privsub2 : Outbound Internet
+
+' Lambda to VPC Endpoints
+lambda1 --> s3ep : Secure Access
+lambda1 --> dynamoep : Secure Access
+lambda1 --> bedrockep : Secure Access
+lambda2 --> dynamoep : Secure Access
+lambda3 --> dynamoep : Secure Access
+lambda4 --> dynamoep : Secure Access
+
+' VPC Endpoints to AWS Services
+s3ep --> s3 : Private Connection
+dynamoep --> dynamo : Private Connection
+bedrockep --> bedrock : Private Connection
+
+' Lambda to AWS Services (via VPC endpoints)
+lambda1 --> timestream : Via VPC
+lambda1 --> kinesis : Via VPC
+lambda2 --> sagemaker : Via VPC
+
+' Security and Monitoring
+lambdasg --> lambda1 : Network Security
+lambdasg --> lambda2 : Network Security
+lambdasg --> lambda3 : Network Security
+lambdasg --> lambda4 : Network Security
+
+endpointsg --> endpoints : Endpoint Security
+
+iam --> lambda1 : Access Permissions
+iam --> lambda2 : Access Permissions
+iam --> lambda3 : Access Permissions
+iam --> lambda4 : Access Permissions
+
+cloudwatch --> lambda1 : Monitoring
+cloudwatch --> lambda2 : Monitoring
+cloudwatch --> lambda3 : Monitoring
+cloudwatch --> lambda4 : Monitoring
+
+note right of vpc
+  Network Isolation:
+  - Private subnets for Lambda
+  - Public subnets for NAT Gateways
+  - VPC endpoints for AWS services
+  - Security groups for access control
+end note
+
+note right of endpoints
+  Cost Optimization:
+  - S3 endpoint eliminates NAT costs
+  - DynamoDB endpoint for direct access
+  - Bedrock endpoint for AI services
+end note
+
+note bottom of dynamo
+  Data Storage:
+  - User Profiles
+  - User Events  
+  - Struggle Signals
+  - Video Engagement
+end note
+
+@enduml

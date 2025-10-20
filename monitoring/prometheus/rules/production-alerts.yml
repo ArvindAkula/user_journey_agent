@@ -1,0 +1,286 @@
+groups:
+  - name: user-journey-analytics.critical
+    rules:
+      # Application Health Alerts
+      - alert: ApplicationDown
+        expr: up{job="user-journey-analytics-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+          team: platform
+        annotations:
+          summary: "User Journey Analytics Backend is down"
+          description: "The backend service has been down for more than 1 minute"
+          runbook_url: "https://docs.company.com/runbooks/backend-down"
+
+      - alert: FrontendDown
+        expr: up{job=~"user-journey-analytics-frontend|user-app|analytics-dashboard"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: frontend
+          team: platform
+        annotations:
+          summary: "Frontend application {{ $labels.service }} is down"
+          description: "Frontend service {{ $labels.service }} has been down for more than 2 minutes"
+
+      # High Error Rate Alerts
+      - alert: HighErrorRate
+        expr: user_journey:error_rate_5m > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.service }}"
+          runbook_url: "https://docs.company.com/runbooks/high-error-rate"
+
+      - alert: CriticalErrorRate
+        expr: user_journey:error_rate_5m > 0.10
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "Critical error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.service }}"
+
+      # Performance Alerts
+      - alert: HighResponseTime
+        expr: user_journey:response_time_p95_5m > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for service {{ $labels.service }}"
+
+      - alert: VeryHighResponseTime
+        expr: user_journey:response_time_p99_5m > 5
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "Very high response time detected"
+          description: "99th percentile response time is {{ $value }}s for service {{ $labels.service }}"
+
+      # Circuit Breaker Alerts
+      - alert: CircuitBreakerOpen
+        expr: circuit_breaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: warning
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "Circuit breaker is open"
+          description: "Circuit breaker for {{ $labels.service_name }} is open"
+          runbook_url: "https://docs.company.com/runbooks/circuit-breaker-open"
+
+      - alert: MultipleCircuitBreakersOpen
+        expr: sum(circuit_breaker_state{state="open"}) > 2
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Multiple circuit breakers are open"
+          description: "{{ $value }} circuit breakers are currently open"
+
+  - name: user-journey-analytics.resources
+    rules:
+      # Memory Alerts
+      - alert: HighMemoryUsage
+        expr: user_journey:memory_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}% for service {{ $labels.service }}"
+
+      - alert: CriticalMemoryUsage
+        expr: user_journey:memory_usage_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{ $labels.service }}"
+          team: platform
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Memory usage is {{ $value }}% for service {{ $labels.service }}"
+
+      # Database Connection Pool Alerts
+      - alert: HighDatabaseConnectionUsage
+        expr: user_journey:db_connection_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High database connection pool usage"
+          description: "Database connection pool usage is {{ $value }}%"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: user_journey:db_connection_usage_percent > 95
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Database connection pool usage is {{ $value }}%"
+
+      # Disk Space Alerts
+      - alert: HighDiskUsage
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High disk usage detected"
+          description: "Disk usage is above 80% on {{ $labels.instance }}"
+
+      - alert: CriticalDiskUsage
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Critical disk usage detected"
+          description: "Disk usage is above 90% on {{ $labels.instance }}"
+
+  - name: user-journey-analytics.business
+    rules:
+      # Business Logic Alerts
+      - alert: LowEventProcessingRate
+        expr: user_journey:events_processed_rate_5m < 10
+        for: 10m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "Low event processing rate"
+          description: "Event processing rate is {{ $value }} events/sec, which is below normal"
+
+      - alert: NoEventsProcessed
+        expr: user_journey:events_processed_rate_5m == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: product
+        annotations:
+          summary: "No events being processed"
+          description: "No user events have been processed in the last 5 minutes"
+
+      - alert: HighStruggleSignalRate
+        expr: user_journey:struggle_signals_rate_5m > 5
+        for: 10m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "High struggle signal detection rate"
+          description: "Struggle signal rate is {{ $value }} signals/sec, indicating potential user experience issues"
+
+      - alert: NoInterventionsExecuted
+        expr: user_journey:interventions_rate_5m == 0 and user_journey:struggle_signals_rate_5m > 0
+        for: 15m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "Struggle signals detected but no interventions executed"
+          description: "Struggle signals are being detected but no interventions are being executed"
+
+  - name: user-journey-analytics.aws
+    rules:
+      # AWS Service Alerts
+      - alert: DynamoDBThrottling
+        expr: aws_dynamodb_throttled_requests_sum > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: dynamodb
+          team: platform
+        annotations:
+          summary: "DynamoDB throttling detected"
+          description: "DynamoDB table {{ $labels.table_name }} is experiencing throttling"
+
+      - alert: KinesisStreamBehind
+        expr: aws_kinesis_incoming_records_sum - aws_kinesis_outgoing_records_sum > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: kinesis
+          team: platform
+        annotations:
+          summary: "Kinesis stream falling behind"
+          description: "Kinesis stream {{ $labels.stream_name }} has {{ $value }} unprocessed records"
+
+      - alert: S3HighErrorRate
+        expr: aws_s3_4xx_errors_sum + aws_s3_5xx_errors_sum > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: s3
+          team: platform
+        annotations:
+          summary: "High S3 error rate"
+          description: "S3 bucket {{ $labels.bucket_name }} is experiencing high error rates"
+
+      - alert: SQSMessageBacklog
+        expr: aws_sqs_approximate_number_of_messages > 100
+        for: 10m
+        labels:
+          severity: warning
+          service: sqs
+          team: platform
+        annotations:
+          summary: "SQS message backlog detected"
+          description: "SQS queue {{ $labels.queue_name }} has {{ $value }} messages in backlog"
+
+  - name: user-journey-analytics.security
+    rules:
+      # Security Alerts
+      - alert: HighFailedAuthenticationRate
+        expr: rate(authentication_failures_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Authentication failure rate is {{ $value }} failures/sec"
+
+      - alert: SuspiciousActivity
+        expr: rate(security_events_total{event_type="suspicious"}[5m]) > 1
+        for: 1m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Suspicious security activity detected"
+          description: "Suspicious security events detected at rate {{ $value }} events/sec"
+
+      - alert: RateLimitExceeded
+        expr: rate(rate_limit_exceeded_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Rate limit frequently exceeded"
+          description: "Rate limit exceeded {{ $value }} times/sec"

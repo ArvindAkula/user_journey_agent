@@ -1,0 +1,127 @@
+@startuml AI Agent Workflows
+!theme plain
+
+title AI Agent Workflows - User Journey Analytics
+
+participant "User" as user
+participant "Frontend App" as frontend
+participant "Event Processor" as processor
+participant "Feature Engineering" as features
+participant "SageMaker Endpoint" as sagemaker
+participant "Bedrock Agent" as agent
+participant "Struggle Detector" as struggle
+participant "Video Analyzer" as video
+participant "Intervention Executor" as intervention
+participant "Notification System" as notify
+
+== Struggle Detection Workflow ==
+
+user -> frontend : Performs action with difficulty
+frontend -> processor : Send struggle event
+processor -> features : Extract behavior features
+features -> sagemaker : Calculate exit risk
+sagemaker -> agent : Risk score + context
+
+agent -> struggle : Analyze struggle pattern
+struggle -> struggle : Assess severity & history
+struggle -> agent : Analysis + recommendations
+
+alt High Risk Detected
+    agent -> intervention : Execute critical intervention
+    intervention -> notify : Send immediate alerts
+    intervention -> notify : Notify support team
+    notify -> user : Push notification
+    note right: **Critical Path**\n• Immediate response\n• Support team alert\n• Live chat offer
+else Medium Risk
+    agent -> intervention : Execute standard intervention
+    intervention -> notify : Send helpful resources
+    notify -> user : Email with guidance
+    note right: **Standard Path**\n• Resource email\n• Progress monitoring\n• Follow-up scheduled
+else Low Risk
+    agent -> intervention : Execute gentle guidance
+    intervention -> frontend : Trigger in-app help
+    frontend -> user : Show contextual tips
+    note right: **Gentle Path**\n• In-app guidance\n• Progress encouragement\n• Passive monitoring
+end
+
+== Video Engagement Analysis Workflow ==
+
+user -> frontend : Watches video content
+frontend -> processor : Video engagement events
+processor -> features : Update engagement metrics
+
+agent -> video : Analyze engagement patterns
+video -> video : Calculate engagement scores
+video -> video : Identify content preferences
+video -> agent : Engagement analysis
+
+alt High Engagement
+    agent -> intervention : Recommend advanced content
+    intervention -> notify : Send next-level resources
+    note right: **Progression Path**\n• Advanced content\n• Certification offers\n• Success reinforcement
+else Low Engagement
+    agent -> intervention : Improve content strategy
+    intervention -> notify : Send alternative content
+    note right: **Re-engagement Path**\n• Simplified content\n• Different formats\n• Preference survey
+end
+
+== Proactive Intervention Workflow ==
+
+loop Continuous Monitoring
+    features -> sagemaker : Batch risk assessment
+    sagemaker -> agent : User risk scores
+    
+    agent -> agent : Identify at-risk users
+    
+    alt Critical Risk Users
+        agent -> intervention : Execute emergency interventions
+        intervention -> notify : Priority support alerts
+        note right: **Emergency Protocol**\n• Immediate human contact\n• Escalation procedures\n• Success tracking
+    else Moderate Risk Users
+        agent -> intervention : Execute preventive interventions
+        intervention -> notify : Proactive outreach
+        note right: **Prevention Protocol**\n• Educational content\n• Check-in emails\n• Progress monitoring
+    end
+end
+
+== Personalized Journey Orchestration ==
+
+user -> frontend : Navigates application
+frontend -> processor : Journey events
+processor -> features : Update user context
+
+agent -> agent : Analyze user intent
+agent -> agent : Consider historical patterns
+agent -> agent : Generate recommendations
+
+agent -> intervention : Orchestrate next actions
+intervention -> frontend : Personalized UI updates
+intervention -> notify : Contextual notifications
+
+frontend -> user : Personalized experience
+notify -> user : Relevant communications
+
+note over agent
+**Agent Intelligence:**
+• Multi-factor analysis
+• Historical context
+• Predictive insights
+• Personalized recommendations
+end note
+
+== Learning and Optimization Loop ==
+
+intervention -> features : Intervention outcomes
+features -> sagemaker : Update training data
+sagemaker -> sagemaker : Retrain models
+agent -> agent : Update strategies
+
+note over sagemaker, agent
+**Continuous Improvement:**
+• Outcome tracking
+• Model retraining
+• Strategy optimization
+• Performance monitoring
+end note
+
+@enduml

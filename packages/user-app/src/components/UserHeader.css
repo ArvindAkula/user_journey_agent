@@ -1,0 +1,269 @@
+.user-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 70px;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 12px 24px;
+  min-height: 70px;
+  gap: 20px;
+}
+
+.header-brand {
+  flex-shrink: 0;
+  min-width: 150px;
+}
+
+.brand-link {
+  text-decoration: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.brand-link h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.5px;
+}
+
+.app-subtitle {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.header-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 16px;
+  overflow: visible;
+}
+
+.header-actions {
+  flex-shrink: 0;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.user-greeting {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.profile-link {
+  color: white;
+  text-decoration: none;
+  padding: 9px 18px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.profile-link:hover::before {
+  left: 100%;
+}
+
+.profile-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.logout-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.logout-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.logout-button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.logout-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.6), 0 0 20px rgba(220, 53, 69, 0.3);
+  border-color: #dc3545;
+}
+
+.logout-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  
+  .user-greeting {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 10px 12px;
+    min-height: 60px;
+    gap: 8px;
+  }
+  
+  .header-brand {
+    min-width: 120px;
+  }
+  
+  .brand-link h1 {
+    font-size: 1.2rem;
+  }
+  
+  .app-subtitle {
+    font-size: 0.7rem;
+  }
+  
+  .header-nav {
+    margin: 0 8px;
+  }
+  
+  .header-actions {
+    min-width: auto;
+    gap: 8px;
+  }
+  
+  .user-menu {
+    gap: 8px;
+  }
+  
+  .user-greeting {
+    display: none;
+  }
+  
+  .profile-link,
+  .logout-button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-header {
+    min-height: auto;
+  }
+  
+  .header-container {
+    flex-wrap: wrap;
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .header-brand {
+    min-width: auto;
+  }
+  
+  .header-nav {
+    order: 3;
+    width: 100%;
+    margin: 0;
+  }
+  
+  .header-actions {
+    order: 2;
+    min-width: auto;
+    gap: 6px;
+  }
+  
+  .user-menu {
+    gap: 6px;
+  }
+  
+  .profile-link,
+  .logout-button {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+}

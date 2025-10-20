@@ -1,0 +1,282 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "User Journey Analytics - Business Metrics",
+    "tags": ["user-journey-analytics", "business", "analytics"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "1m",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "User Events Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(user_events_processed_total[1h]))",
+            "legendFormat": "Events Last Hour",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(increase(user_events_processed_total[24h]))",
+            "legendFormat": "Events Last 24h",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(rate(user_events_processed_total[5m])) * 60",
+            "legendFormat": "Events/min (Current)",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Struggle Signals Detected",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(struggle_signals_detected_total[5m])) by (signal_type)",
+            "legendFormat": "{{signal_type}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {"label": "Signals/sec", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Intervention Success Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "sum(rate(interventions_successful_total[5m])) / sum(rate(interventions_executed_total[5m])) * 100",
+            "legendFormat": "Success Rate %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 90}
+              ]
+            },
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "User Session Analytics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(user_sessions_started_total[5m]))",
+            "legendFormat": "Sessions Started/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(user_sessions_completed_total[5m]))",
+            "legendFormat": "Sessions Completed/sec",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(rate(user_sessions_abandoned_total[5m]))",
+            "legendFormat": "Sessions Abandoned/sec",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {"label": "Sessions/sec", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Average Session Duration",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(session_duration_seconds)",
+            "legendFormat": "Avg Duration (seconds)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "s"
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "User Engagement Score",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "avg(user_engagement_score)",
+            "legendFormat": "Engagement Score",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 5},
+                {"color": "green", "value": 8}
+              ]
+            },
+            "unit": "short",
+            "min": 0,
+            "max": 10
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Feature Usage Heatmap",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "sum(rate(feature_usage_total[5m])) by (feature_name, hour)",
+            "legendFormat": "{{feature_name}}",
+            "refId": "A"
+          }
+        ],
+        "heatmap": {
+          "xAxis": {"show": true},
+          "yAxis": {"show": true, "logBase": 1},
+          "colorMode": "spectrum"
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "Top Struggle Points",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(struggle_signals_detected_total[1h])) by (feature_name, signal_type))",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true, "__name__": true},
+              "indexByName": {},
+              "renameByName": {
+                "feature_name": "Feature",
+                "signal_type": "Signal Type",
+                "Value": "Signals/hour"
+              }
+            }
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 9,
+        "title": "AI Service Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ai_service_request_duration_seconds_bucket[5m])) by (le, service_name))",
+            "legendFormat": "{{service_name}} - 95th percentile",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(ai_service_requests_total[5m])) by (service_name)",
+            "legendFormat": "{{service_name}} - Requests/sec",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {"label": "Duration (s) / Rate (req/s)", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 10,
+        "title": "Data Processing Pipeline",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(kinesis_records_processed_total[5m]))",
+            "legendFormat": "Kinesis Records/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(dynamodb_writes_total[5m]))",
+            "legendFormat": "DynamoDB Writes/sec",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(rate(sqs_messages_processed_total[5m]))",
+            "legendFormat": "SQS Messages/sec",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {"label": "Operations/sec", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "time_range",
+          "type": "interval",
+          "query": "1m,5m,15m,1h,6h,24h",
+          "current": {"text": "5m", "value": "5m"}
+        },
+        {
+          "name": "feature",
+          "type": "query",
+          "query": "label_values(feature_usage_total, feature_name)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    }
+  }
+}

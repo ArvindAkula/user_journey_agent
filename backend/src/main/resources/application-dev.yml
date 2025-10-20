@@ -1,0 +1,61 @@
+# Development profile configuration
+
+# Development-specific configuration
+aws:
+  region: us-east-1
+  access-key-id: test
+  secret-access-key: test
+  mock-mode: ${AWS_MOCK_MODE:true}
+  dynamodb:
+    endpoint: http://localhost:4566  # LocalStack
+  kinesis:
+    endpoint: http://localhost:4566  # LocalStack
+    stream-name: user-events-stream
+  s3:
+    endpoint: http://localhost:4566  # LocalStack
+    bucket-name: user-journey-analytics-data
+  sqs:
+    endpoint: http://localhost:4566  # LocalStack
+    dlq:
+      url: http://localhost:4566/000000000000/user-events-dlq
+    retry-queue:
+      url: http://localhost:4566/000000000000/user-events-retry
+
+# Mock AI services for local development
+bedrock:
+  agent:
+    id: mock-agent
+    alias:
+      id: mock-alias
+  mock-mode: ${AWS_MOCK_MODE:true}
+
+nova:
+  mock-mode: ${AWS_MOCK_MODE:true}
+  model:
+    id: mock-nova-model
+
+sagemaker:
+  mock-mode: ${AWS_MOCK_MODE:true}
+  exit-risk:
+    endpoint-name: mock-endpoint
+
+# Enable debug logging for development
+logging:
+  level:
+    com.userjourney.analytics: DEBUG
+    org.springframework.web: DEBUG
+    software.amazon.awssdk: INFO
+    root: INFO
+
+# CORS configuration for development
+cors:
+  allowed-origins: http://localhost:3000
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+
+# Disable security for local development
+spring:
+  security:
+    enabled: false
+  main:
+    allow-bean-definition-overriding: true

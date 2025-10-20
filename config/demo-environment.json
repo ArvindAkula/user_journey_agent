@@ -1,0 +1,38 @@
+{
+  "environment": "demo",
+  "aws": {
+    "region": "us-east-1",
+    "profile": "default"
+  },
+  "demo": {
+    "durationHours": 4,
+    "autoShutdown": true,
+    "maxCostThreshold": 50.00,
+    "startTime": null,
+    "stopTime": null
+  },
+  "services": {
+    "frontend": {
+      "port": 3000,
+      "url": "http://localhost:3000"
+    },
+    "backend": {
+      "port": 8080,
+      "url": "http://localhost:8080",
+      "profile": "demo"
+    }
+  },
+  "monitoring": {
+    "healthCheckInterval": 300,
+    "costTrackingEnabled": true,
+    "alertThresholds": {
+      "cost": [25.00, 40.00, 50.00],
+      "duration": [2, 3, 4]
+    }
+  },
+  "backup": {
+    "autoBackupOnStop": true,
+    "retentionDays": 30,
+    "compressionEnabled": true
+  }
+}
