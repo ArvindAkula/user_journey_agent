@@ -1,0 +1,199 @@
+# =============================================================================
+# Production Profile Configuration
+# =============================================================================
+# This profile is activated when SPRING_PROFILES_ACTIVE=prod
+# Uses actual AWS services and Firebase Authentication
+# =============================================================================
+
+spring:
+  profiles: prod
+  
+  # Production-specific Jackson configuration
+  jackson:
+    serialization:
+      indent-output: false  # Compact JSON in production
+
+# =============================================================================
+# AWS Configuration - Production
+# =============================================================================
+aws:
+  region: ${AWS_REGION:us-east-1}
+  mock:
+    enabled: false
+  
+  # DynamoDB Configuration (uses default AWS SDK endpoints)
+  dynamodb:
+    # No endpoint override - uses AWS default
+    
+  # Kinesis Configuration
+  kinesis:
+    stream-name: ${KINESIS_STREAM_NAME:user-events-stream-prod}
+    
+  # S3 Configuration
+  s3:
+    bucket-name: ${S3_BUCKET_NAME:user-journey-analytics-data-prod}
+    
+  # SQS Configuration
+  sqs:
+    dlq:
+      url: ${AWS_SQS_DLQ_URL}
+    retry-queue:
+      url: ${AWS_SQS_RETRY_QUEUE_URL}
+
+# =============================================================================
+# Firebase Configuration - Production
+# =============================================================================
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID}
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:classpath:firebase-service-account-prod.json}
+  emulator:
+    enabled: false
+
+# =============================================================================
+# Bedrock Agent Configuration - Production
+# =============================================================================
+bedrock:
+  agent:
+    id: ${BEDROCK_AGENT_ID}
+    alias:
+      id: ${BEDROCK_AGENT_ALIAS_ID}
+  mock:
+    enabled: false
+
+# =============================================================================
+# Nova Configuration - Production
+# =============================================================================
+nova:
+  model:
+    id: ${NOVA_MODEL_ID:amazon.nova-micro-v1:0}
+  max:
+    tokens: ${NOVA_MAX_TOKENS:1000}
+  temperature: ${NOVA_TEMPERATURE:0.3}
+  timeout:
+    seconds: ${NOVA_TIMEOUT_SECONDS:30}
+
+# =============================================================================
+# SageMaker Configuration - Production
+# =============================================================================
+sagemaker:
+  exit-risk:
+    endpoint-name: ${SAGEMAKER_EXIT_RISK_ENDPOINT}
+    model-threshold: ${SAGEMAKER_MODEL_THRESHOLD:0.5}
+  mock:
+    enabled: false
+
+# =============================================================================
+# Security Configuration - Production
+# =============================================================================
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:86400}  # 24 hours
+  encryption:
+    key: ${ENCRYPTION_KEY}
+  rate-limit:
+    enabled: true
+    requests-per-minute: ${RATE_LIMIT_RPM:100}
+
+# =============================================================================
+# CORS Configuration - Production
+# =============================================================================
+cors:
+  allowed-origins:
+    - https://www.journey-analytics.io
+    - https://journey-analytics.io
+    - https://www.journey-analytics-admin.io
+    - https://journey-analytics-admin.io
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - Authorization
+    - Content-Type
+    - X-Requested-With
+  allow-credentials: true
+  max-age: 3600
+
+# =============================================================================
+# Redis Configuration - Production
+# =============================================================================
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      timeout: 2000ms
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:true}
+
+# =============================================================================
+# Resilience Configuration - Production
+# =============================================================================
+resilience:
+  circuit-breaker:
+    failure-threshold: ${RESILIENCE_CB_FAILURE_THRESHOLD:5}
+    timeout-duration: ${RESILIENCE_CB_TIMEOUT_DURATION:60000}
+    success-threshold: ${RESILIENCE_CB_SUCCESS_THRESHOLD:3}
+  retry:
+    max-attempts: ${RESILIENCE_RETRY_MAX_ATTEMPTS:3}
+    initial-delay: ${RESILIENCE_RETRY_INITIAL_DELAY:500}
+    backoff-multiplier: ${RESILIENCE_RETRY_BACKOFF_MULTIPLIER:2.0}
+    max-delay: ${RESILIENCE_RETRY_MAX_DELAY:30000}
+
+# =============================================================================
+# Dead Letter Queue Configuration - Production
+# =============================================================================
+dlq:
+  processing:
+    enabled: ${DLQ_PROCESSING_ENABLED:true}
+    interval: ${DLQ_PROCESSING_INTERVAL:60000}
+    batch-size: ${DLQ_PROCESSING_BATCH_SIZE:10}
+  max-retry-attempts: ${DLQ_MAX_RETRY_ATTEMPTS:3}
+
+# =============================================================================
+# Logging Configuration - Production
+# =============================================================================
+logging:
+  level:
+    root: WARN
+    com.userjourney.analytics: INFO
+    software.amazon.awssdk: WARN
+    org.springframework.security: INFO
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ${LOG_FILE_PATH:/var/log/user-journey-analytics/backend.log}
+    max-size: 100MB
+    max-history: 30
+
+# =============================================================================
+# Actuator Configuration - Production (Limited endpoints)
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# =============================================================================
+# Server Configuration - Production
+# =============================================================================
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  http2:
+    enabled: true

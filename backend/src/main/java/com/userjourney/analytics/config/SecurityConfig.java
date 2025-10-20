@@ -7,6 +7,8 @@ import com.userjourney.analytics.config.LoggingConfig.CorrelationIdFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,7 +23,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -41,6 +42,22 @@ public class SecurityConfig {
     @Autowired
     private CorrelationIdFilter correlationIdFilter;
 
+    /**
+     * Configure role hierarchy: ADMIN > ANALYST > VIEWER
+     * This means:
+     * - ADMIN has all permissions of ANALYST and VIEWER
+     * - ANALYST has all permissions of VIEWER
+     * - VIEWER has only their own permissions
+     */
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        // Define hierarchy: higher roles inherit permissions from lower roles
+        String hierarchy = "ROLE_ADMIN > ROLE_ANALYST \n ROLE_ANALYST > ROLE_VIEWER";
+        roleHierarchy.setHierarchy(hierarchy);
+        return roleHierarchy;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -52,33 +69,44 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // Allow CORS preflight requests - MUST BE FIRST
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        // Public endpoints
+                        
+                        // Public endpoints - no authentication required
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/health").permitAll()
                         .requestMatchers("/api/health/**").permitAll()
                         .requestMatchers("/api/ping").permitAll()
-                        .requestMatchers("/api/monitoring/metrics").permitAll()
-                        .requestMatchers("/api/monitoring/metrics/summary").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/api/compliance/privacy-policy").permitAll()
                         .requestMatchers("/api/compliance/terms-of-service").permitAll()
+                        
                         // Demo endpoints (temporarily public for development)
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/events/**").permitAll()
-                        .requestMatchers("/api/analytics/**").permitAll()
-                        .requestMatchers("/analytics/**").permitAll()
-                        .requestMatchers("/api/dashboard/**").permitAll()
-                        // Protected endpoints
-                        .requestMatchers("/api/predictive/**").authenticated()
-                        .requestMatchers("/api/nova/**").authenticated()
-                        // Admin endpoints
+                        
+                        // Admin-only endpoints - requires ADMIN role
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/compliance/audit/**").hasRole("ADMIN")
                         .requestMatchers("/api/monitoring/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
-                        .anyRequest().permitAll());
+                        .requestMatchers("/api/users/manage/**").hasRole("ADMIN")
+                        
+                        // Analytics endpoints - requires ANALYST or ADMIN role (via hierarchy)
+                        .requestMatchers("/api/analytics/**").hasRole("ANALYST")
+                        .requestMatchers("/analytics/**").hasRole("ANALYST")
+                        .requestMatchers("/api/dashboard/**").hasRole("ANALYST")
+                        .requestMatchers("/api/reports/**").hasRole("ANALYST")
+                        .requestMatchers("/api/predictive/**").hasRole("ANALYST")
+                        .requestMatchers("/api/nova/**").hasRole("ANALYST")
+                        
+                        // Viewer endpoints - requires VIEWER, ANALYST, or ADMIN role (via hierarchy)
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/events/**").hasRole("VIEWER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/analytics/view/**").hasRole("VIEWER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/dashboard/view/**").hasRole("VIEWER")
+                        
+                        // All other requests require authentication
+                        .anyRequest().authenticated());
 
         // Add custom filters in order
         http.addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class);

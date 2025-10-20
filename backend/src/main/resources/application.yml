@@ -6,6 +6,9 @@ spring:
     name: user-journey-analytics-backend
   profiles:
     active: dev
+  config:
+    import:
+      - classpath:authorized-users.yml
   jackson:
     serialization:
       write-dates-as-timestamps: false

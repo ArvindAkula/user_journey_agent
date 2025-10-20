@@ -90,40 +90,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && validateToken(jwt)) {
                 Claims claims = getClaimsFromToken(jwt);
                 String userId = claims.getSubject();
+                String email = claims.get("email", String.class);
 
-                // Safely extract roles with null check
-                @SuppressWarnings("unchecked")
-                List<String> roles = (List<String>) claims.get("roles");
-                if (roles == null) {
-                    roles = List.of("USER"); // Default role
-                }
+                // Extract roles from token - support both "roles" (list) and "role" (single string)
+                List<String> roles = extractRoles(claims);
 
+                // Convert roles to Spring Security authorities with ROLE_ prefix
                 List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .map(role -> {
+                            // Add ROLE_ prefix if not already present
+                            String roleWithPrefix = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+                            return new SimpleGrantedAuthority(roleWithPrefix);
+                        })
                         .collect(Collectors.toList());
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
-                        null, authorities);
+                // Create authentication token with user details
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userId, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                // Set authentication in security context
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 // Add user context to MDC for logging
                 MDC.put("userId", userId);
+                if (email != null) {
+                    MDC.put("userEmail", email);
+                }
+                MDC.put("userRoles", String.join(",", roles));
 
                 // Log successful authentication
-                logger.info("✅ Authenticated user: {} for {}", userId, request.getRequestURI());
+                logger.debug("✅ Authenticated user: {} (roles: {}) for {}", 
+                    userId, String.join(",", roles), request.getRequestURI());
                 auditLogService.logSecurityEvent(userId, "AUTHENTICATION_SUCCESS",
+                        getClientIpAddress(request), request.getRequestURI());
+            } else if (StringUtils.hasText(jwt)) {
+                // Token present but invalid
+                logger.warn("⚠️  Invalid JWT token for: {}", request.getRequestURI());
+                auditLogService.logSecurityEvent("unknown", "INVALID_TOKEN",
                         getClientIpAddress(request), request.getRequestURI());
             }
         } catch (ExpiredJwtException ex) {
             logger.warn("⚠️  JWT token expired: {}", request.getRequestURI());
             auditLogService.logSecurityEvent("unknown", "TOKEN_EXPIRED",
                     getClientIpAddress(request), request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (SignatureException ex) {
             logger.error("❌ Invalid JWT signature: {}", request.getRequestURI());
             auditLogService.logSecurityEvent("unknown", "INVALID_SIGNATURE",
                     getClientIpAddress(request), request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (MalformedJwtException ex) {
+            logger.error("❌ Malformed JWT token: {}", request.getRequestURI());
+            auditLogService.logSecurityEvent("unknown", "MALFORMED_TOKEN",
+                    getClientIpAddress(request), request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (Exception ex) {
             logger.error("❌ Authentication failed: {}", request.getRequestURI(), ex);
             auditLogService.logSecurityEvent("unknown", "AUTHENTICATION_FAILURE",
@@ -136,6 +157,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 MDC.clear();
             }
         }
+    }
+
+    /**
+     * Extract roles from JWT claims
+     * Supports both "roles" (list) and "role" (single string) claims
+     * 
+     * @param claims JWT claims
+     * @return List of role strings
+     */
+    private List<String> extractRoles(Claims claims) {
+        // Try to get roles as a list first
+        @SuppressWarnings("unchecked")
+        List<String> rolesList = (List<String>) claims.get("roles");
+        
+        if (rolesList != null && !rolesList.isEmpty()) {
+            return rolesList;
+        }
+        
+        // Try to get single role as string
+        String singleRole = claims.get("role", String.class);
+        if (singleRole != null && !singleRole.isEmpty()) {
+            return List.of(singleRole);
+        }
+        
+        // Default to USER role if no roles found
+        logger.warn("No roles found in JWT token for user: {}, defaulting to USER", claims.getSubject());
+        return List.of("USER");
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

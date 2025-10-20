@@ -1,0 +1,85 @@
+.unauthorized-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+.unauthorized-content {
+  text-align: center;
+  max-width: 500px;
+  background: white;
+  padding: 60px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.unauthorized-icon {
+  color: #dc3545;
+  margin-bottom: 30px;
+}
+
+.unauthorized-icon svg {
+  width: 80px;
+  height: 80px;
+}
+
+.unauthorized-content h1 {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 15px 0;
+}
+
+.unauthorized-content p {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 40px 0;
+  line-height: 1.6;
+}
+
+.unauthorized-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.unauthorized-actions button {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(0);
+}

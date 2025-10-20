@@ -31,15 +31,19 @@ export interface UserProfile {
   interventionHistory: InterventionRecord[];
 }
 
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  ANALYST = 'ANALYST',
+  VIEWER = 'VIEWER'
+}
+
 export interface User {
-  id: string;
+  uid: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  name: string; // Full name, can be derived from firstName + lastName
-  persona?: UserPersona;
-  createdAt: Date;
-  lastLoginAt: Date;
+  displayName: string;
+  role: UserRole;
+  createdAt?: Date;
+  lastLoginAt?: Date;
 }
 
 export interface UserPersona {
@@ -66,13 +70,4 @@ export interface AuthState {
 export interface LoginCredentials {
   email: string;
   password: string;
-}
-
-export interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  name?: string; // Optional, can be derived from firstName + lastName
-  persona?: UserPersona;
 }

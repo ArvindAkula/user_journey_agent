@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # LocalStack for AWS services
+  localstack:
+    container_name: localstack-user-journey
+    image: localstack/localstack:3.0
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External services port range
+    environment:
+      # Core configuration
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=dynamodb,kinesis,s3,lambda,sqs,sns,ses
+      - DATA_DIR=/tmp/localstack/data
+      - PERSISTENCE=1
+      
+      # AWS configuration
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      
+      # Feature flags
+      - EAGER_SERVICE_LOADING=1
+      - SKIP_SSL_CERT_DOWNLOAD=1
+      
+      # Initialization
+      - INIT_SCRIPTS_PATH=/etc/localstack/init/ready.d
+    volumes:
+      - "./localstack-data:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./dev-scripts/init-localstack.sh:/etc/localstack/init/ready.d/init-localstack.sh"
+    networks:
+      - user-journey-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis for rate limiting and caching
+  redis:
+    container_name: redis-user-journey
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - user-journey-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # DynamoDB Admin UI (optional)
+  dynamodb-admin:
+    container_name: dynamodb-admin
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks:
+      - user-journey-network
+
+networks:
+  user-journey-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local

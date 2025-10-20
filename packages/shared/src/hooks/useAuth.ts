@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AuthService } from '../services';
-import { AuthState, LoginCredentials, RegisterData, User } from '../types';
+import { AuthState, LoginCredentials, User, UserRole } from '../types';
 
 export interface UseAuthConfig {
   authService: AuthService;
@@ -19,10 +19,6 @@ export const useAuth = (config: UseAuthConfig) => {
     return authService.login(credentials);
   }, [authService]);
 
-  const register = useCallback(async (data: RegisterData): Promise<User> => {
-    return authService.register(data);
-  }, [authService]);
-
   const logout = useCallback(async (): Promise<void> => {
     return authService.logout();
   }, [authService]);
@@ -35,12 +31,16 @@ export const useAuth = (config: UseAuthConfig) => {
     return authService.getCurrentUser();
   }, [authService]);
 
+  const hasRole = useCallback((role: UserRole): boolean => {
+    return authService.hasRole(role);
+  }, [authService]);
+
   return {
     ...authState,
     login,
-    register,
     logout,
     refreshToken,
     getCurrentUser,
+    hasRole,
   };
 };

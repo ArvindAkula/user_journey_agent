@@ -1,6 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { validateOnStartup } from '@aws-agent/shared/config/envValidation';
+
+// Validate environment variables on startup
+try {
+  validateOnStartup();
+} catch (error) {
+  console.error('Environment validation failed:', error);
+  // Display error to user
+  document.body.innerHTML = `
+    <div style="padding: 40px; font-family: monospace; background: #fee; color: #c00;">
+      <h1>Configuration Error</h1>
+      <p><strong>The application cannot start due to missing environment variables.</strong></p>
+      <p>${error instanceof Error ? error.message : 'Unknown error'}</p>
+      <p>Please check the console for more details.</p>
+    </div>
+  `;
+  throw error;
+}
 
 // Set up demo mode detection as early as possible
 if (localStorage.getItem('analytics_demo_mode') === 'true') {

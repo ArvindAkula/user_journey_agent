@@ -1,9 +1,14 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ErrorBoundary } from '@aws-agent/shared';
+import React, { Suspense, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { 
+  ErrorBoundary, 
+  AuthProvider, 
+  LoginPage, 
+  ProtectedRoute,
+  AuthService,
+  UserRole
+} from '@aws-agent/shared';
 import ProductionErrorBoundary from './components/ProductionErrorBoundary';
-import { AnalyticsAuthProvider, useAnalyticsAuth } from './contexts/AnalyticsAuthContext';
-import { AnalyticsLoginForm } from './components/Auth/AnalyticsLoginForm';
 import { UserManagement } from './components/Auth/UserManagement';
 import DashboardLayout from './components/Layout/DashboardLayout';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -18,55 +23,73 @@ const MetricsPage = React.lazy(() => import('./pages/MetricsPage'));
 const UserJourneyPage = React.lazy(() => import('./pages/UserJourneyPage'));
 const RealTimePage = React.lazy(() => import('./pages/RealTimePage'));
 const ExportsPage = React.lazy(() => import('./pages/ExportsPage'));
+const UnauthorizedPage = React.lazy(() => import('./pages/UnauthorizedPage'));
 
 
 
 // Validate environment variables on app startup
 validateOnStartup();
 
-// Protected Route Component
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAnalyticsAuth();
-  
-  // Check for demo mode first - bypass all authentication
-  if (localStorage.getItem('analytics_demo_mode') === 'true') {
-    console.log('Demo mode detected - bypassing authentication');
-    return <>{children}</>;
-  }
+// Create auth service instance
+const createAuthService = () => {
+  const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+  const environment = process.env.REACT_APP_ENVIRONMENT || 'development';
 
-  if (isLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px',
-        color: '#4a5568'
-      }}>
-        Loading...
-      </div>
-    );
-  }
+  return new AuthService({
+    baseURL,
+    timeout: environment === 'production' ? 30000 : 15000,
+    headers: {
+      'X-Client-Type': 'analytics-dashboard',
+      'X-Client-Version': process.env.REACT_APP_VERSION || '1.0.0',
+      'X-Environment': environment
+    },
+    tokenStorageKey: `analytics_access_token_${environment}`,
+    refreshTokenKey: `analytics_refresh_token_${environment}`
+  });
+};
 
-  if (!isAuthenticated) {
-    return <AnalyticsLoginForm />;
-  }
+// Login Page Wrapper with navigation
+const LoginPageWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from || '/dashboard';
 
-  return <>{children}</>;
+  return (
+    <LoginPage
+      title="Analytics Dashboard Login"
+      subtitle="Enter your credentials to access the analytics dashboard"
+      onLoginSuccess={() => navigate(from, { replace: true })}
+      returnUrl={from}
+    />
+  );
 };
 
 // Main App Routes Component
 const AppRoutes: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <Routes>
-      <Route path="/login" element={<AnalyticsLoginForm />} />
+      <Route path="/login" element={<LoginPageWrapper />} />
+      <Route path="/unauthorized" element={
+        <Suspense fallback={<LoadingSpinner />}>
+          <UnauthorizedPage />
+        </Suspense>
+      } />
+      
       <Route path="/" element={
-        <ProtectedRoute>
+        <ProtectedRoute
+          requiredRole={UserRole.ANALYST}
+          onUnauthenticated={(returnUrl) => (
+            <Navigate to="/login" state={{ from: returnUrl }} replace />
+          )}
+          onUnauthorized={() => <Navigate to="/unauthorized" replace />}
+        >
           <DashboardLayout />
         </ProtectedRoute>
       }>
         <Route index element={<Navigate to="/dashboard" replace />} />
+        
         <Route path="dashboard" element={
           <Suspense fallback={<LoadingSpinner />}>
             <ProductionErrorBoundary level="component">
@@ -74,6 +97,7 @@ const AppRoutes: React.FC = () => {
             </ProductionErrorBoundary>
           </Suspense>
         } />
+        
         <Route path="metrics" element={
           <Suspense fallback={<LoadingSpinner />}>
             <ProductionErrorBoundary level="component">
@@ -81,6 +105,7 @@ const AppRoutes: React.FC = () => {
             </ProductionErrorBoundary>
           </Suspense>
         } />
+        
         <Route path="user-journey" element={
           <Suspense fallback={<LoadingSpinner />}>
             <ProductionErrorBoundary level="component">
@@ -88,6 +113,7 @@ const AppRoutes: React.FC = () => {
             </ProductionErrorBoundary>
           </Suspense>
         } />
+        
         <Route path="realtime" element={
           <Suspense fallback={<LoadingSpinner />}>
             <ProductionErrorBoundary level="component">
@@ -95,6 +121,7 @@ const AppRoutes: React.FC = () => {
             </ProductionErrorBoundary>
           </Suspense>
         } />
+        
         <Route path="exports" element={
           <Suspense fallback={<LoadingSpinner />}>
             <ProductionErrorBoundary level="component">
@@ -102,7 +129,21 @@ const AppRoutes: React.FC = () => {
             </ProductionErrorBoundary>
           </Suspense>
         } />
-        <Route path="users" element={<UserManagement />} />
+        
+        {/* Admin-only route */}
+        <Route path="users" element={
+          <ProtectedRoute
+            requiredRole={UserRole.ADMIN}
+            onUnauthorized={() => <Navigate to="/unauthorized" replace />}
+          >
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProductionErrorBoundary level="component">
+                <UserManagement />
+              </ProductionErrorBoundary>
+            </Suspense>
+          </ProtectedRoute>
+        } />
+        
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
@@ -112,6 +153,9 @@ const AppRoutes: React.FC = () => {
 function App() {
   const isProduction = process.env.REACT_APP_ENVIRONMENT === 'production';
   const ErrorBoundaryComponent = isProduction ? ProductionErrorBoundary : ErrorBoundary;
+
+  // Create auth service instance (memoized to prevent recreation)
+  const authService = useMemo(() => createAuthService(), []);
 
   // Initialize performance monitoring for dashboard
   const { PerformanceMonitor } = usePerformanceMonitoring({
@@ -148,7 +192,7 @@ function App() {
 
   return (
     <ErrorBoundaryComponent level="app">
-      <AnalyticsAuthProvider>
+      <AuthProvider authService={authService}>
         <Router>
           <div className="analytics-app">
             <ErrorBoundaryComponent level="page">
@@ -157,7 +201,7 @@ function App() {
           </div>
         </Router>
         <PerformanceMonitor />
-      </AnalyticsAuthProvider>
+      </AuthProvider>
     </ErrorBoundaryComponent>
   );
 }

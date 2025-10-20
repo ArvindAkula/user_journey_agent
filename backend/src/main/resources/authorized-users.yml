@@ -1,0 +1,56 @@
+# Authorized Users Configuration
+# This file defines the users who are authorized to access the application
+# and their assigned roles
+
+authorized:
+  users:
+    # Admin User - Full system access
+    - email: admin@example.com
+      role: ADMIN
+      displayName: System Administrator
+      description: Full access to all features including user management and system configuration
+    
+    # Analyst User - Analytics and reporting access
+    - email: analyst@example.com
+      role: ANALYST
+      displayName: Data Analyst
+      description: Access to analytics dashboard, reports, and data visualization
+    
+    # Viewer User - Read-only access
+    - email: viewer@example.com
+      role: VIEWER
+      displayName: Report Viewer
+      description: Read-only access to reports and dashboards
+
+# Role Definitions
+roles:
+  ADMIN:
+    description: Administrator with full system access
+    permissions:
+      - user_management
+      - system_configuration
+      - analytics_full
+      - reports_full
+      - data_export
+      - intervention_management
+  
+  ANALYST:
+    description: Data analyst with analytics and reporting access
+    permissions:
+      - analytics_read
+      - analytics_write
+      - reports_read
+      - reports_write
+      - data_export
+  
+  VIEWER:
+    description: Viewer with read-only access
+    permissions:
+      - analytics_read
+      - reports_read
+
+# Notes:
+# - Add new users to the 'users' list above
+# - Ensure users are created in Firebase Authentication
+# - Roles are hierarchical: ADMIN > ANALYST > VIEWER
+# - In production, manage this file securely and never commit sensitive data

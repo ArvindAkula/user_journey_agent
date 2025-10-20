@@ -32,6 +32,14 @@ public class JwtService {
     @Value("${app.jwt.expiration:3600}")
     private int jwtExpirationInSeconds;
 
+    /**
+     * Generate a JWT token with user ID, roles, and additional claims
+     * 
+     * @param userId The user's unique identifier (subject)
+     * @param roles List of user roles
+     * @param additionalClaims Additional claims to include in the token
+     * @return The generated JWT token
+     */
     public String generateToken(String userId, List<String> roles, Map<String, Object> additionalClaims) {
         Instant now = Instant.now();
         Instant expiration = now.plus(jwtExpirationInSeconds, ChronoUnit.SECONDS);
@@ -40,6 +48,7 @@ public class JwtService {
 
         var jwtBuilder = Jwts.builder()
             .setSubject(userId)
+            .setIssuer("user-journey-analytics")
             .setIssuedAt(Date.from(now))
             .setExpiration(Date.from(expiration))
             .claim("roles", roles)
@@ -52,6 +61,21 @@ public class JwtService {
         }
 
         return jwtBuilder.compact();
+    }
+
+    /**
+     * Generate a JWT token with email and role
+     * 
+     * @param email The user's email address
+     * @param role The user's role
+     * @return The generated JWT token
+     */
+    public String generateToken(String email, String role) {
+        return generateToken(
+            email,
+            List.of(role),
+            Map.of("email", email, "role", role)
+        );
     }
 
     public String generateAdminToken(String adminId, String email) {
@@ -105,9 +129,37 @@ public class JwtService {
             .getBody();
     }
 
+    /**
+     * Extract user ID from JWT token
+     * 
+     * @param token The JWT token
+     * @return The user ID (subject)
+     */
     public String getUserIdFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.getSubject();
+    }
+
+    /**
+     * Extract email from JWT token
+     * 
+     * @param token The JWT token
+     * @return The user's email address
+     */
+    public String getEmailFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims.get("email", String.class);
+    }
+
+    /**
+     * Extract role from JWT token
+     * 
+     * @param token The JWT token
+     * @return The user's role
+     */
+    public String getRoleFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims.get("role", String.class);
     }
 
     @SuppressWarnings("unchecked")

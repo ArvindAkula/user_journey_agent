@@ -4,3 +4,6 @@ export * from './Modal';
 export * from './DateRangePicker';
 export * from './ErrorBoundary';
 export * from './UserFriendlyError';
+export * from './ProtectedRoute';
+export * from './LoginPage';
+export * from './UserMenu';

@@ -1,61 +1,182 @@
-# Development profile configuration
+# =============================================================================
+# Development Profile Configuration
+# =============================================================================
+# This profile is activated when SPRING_PROFILES_ACTIVE=dev
+# Uses LocalStack for AWS services and Firebase Emulator for authentication
+# =============================================================================
 
-# Development-specific configuration
+spring:
+  profiles: dev
+  
+  # Development-specific Jackson configuration
+  jackson:
+    serialization:
+      indent-output: true  # Pretty print JSON in dev mode
+
+# =============================================================================
+# AWS Configuration - LocalStack
+# =============================================================================
 aws:
   region: us-east-1
-  access-key-id: test
-  secret-access-key: test
-  mock-mode: ${AWS_MOCK_MODE:true}
+  mock:
+    enabled: true
+    endpoint: http://localhost:4566
+  
+  # DynamoDB Configuration
   dynamodb:
-    endpoint: http://localhost:4566  # LocalStack
+    endpoint: http://localhost:4566
+    
+  # Kinesis Configuration
   kinesis:
-    endpoint: http://localhost:4566  # LocalStack
-    stream-name: user-events-stream
+    endpoint: http://localhost:4566
+    stream-name: user-events-stream-dev
+    
+  # S3 Configuration
   s3:
-    endpoint: http://localhost:4566  # LocalStack
-    bucket-name: user-journey-analytics-data
+    endpoint: http://localhost:4566
+    bucket-name: user-journey-analytics-data-dev
+    
+  # SQS Configuration
   sqs:
-    endpoint: http://localhost:4566  # LocalStack
+    endpoint: http://localhost:4566
     dlq:
-      url: http://localhost:4566/000000000000/user-events-dlq
+      url: http://localhost:4566/000000000000/user-journey-dlq-dev
     retry-queue:
-      url: http://localhost:4566/000000000000/user-events-retry
+      url: http://localhost:4566/000000000000/user-journey-retry-dev
 
-# Mock AI services for local development
+# =============================================================================
+# Firebase Configuration - Emulator
+# =============================================================================
+firebase:
+  project-id: user-journey-analytics-dev
+  credentials-path: classpath:firebase-service-account-dev.json
+  emulator:
+    enabled: true
+    host: localhost
+    port: 9099
+
+# =============================================================================
+# Bedrock Agent Configuration - Development
+# =============================================================================
 bedrock:
   agent:
-    id: mock-agent
+    id: user-journey-orchestrator-dev
     alias:
-      id: mock-alias
-  mock-mode: ${AWS_MOCK_MODE:true}
+      id: TSTALIASID
+  mock:
+    enabled: true  # Use mock responses in dev mode
 
+# =============================================================================
+# Nova Configuration - Development
+# =============================================================================
 nova:
-  mock-mode: ${AWS_MOCK_MODE:true}
   model:
-    id: mock-nova-model
+    id: amazon.nova-micro-v1:0
+  max:
+    tokens: 1000
+  temperature: 0.3
+  timeout:
+    seconds: 30
 
+# =============================================================================
+# SageMaker Configuration - Development
+# =============================================================================
 sagemaker:
-  mock-mode: ${AWS_MOCK_MODE:true}
   exit-risk:
-    endpoint-name: mock-endpoint
+    endpoint-name: exit-risk-predictor-dev
+    model-threshold: 0.5
+  mock:
+    enabled: true  # Use mock predictions in dev mode
 
-# Enable debug logging for development
+# =============================================================================
+# Security Configuration - Development
+# =============================================================================
+app:
+  jwt:
+    secret: ZGV2U2VjcmV0S2V5Rm9yRGV2ZWxvcG1lbnRPbmx5Tm90Rm9yUHJvZHVjdGlvbg==
+    expiration: 86400  # 24 hours
+  encryption:
+    key: ZGV2RW5jcnlwdGlvbktleUZvckRldmVsb3BtZW50T25seU5vdEZvclByb2R1Y3Rpb24=
+  rate-limit:
+    enabled: false  # Disable rate limiting in dev mode
+    requests-per-minute: 1000
+
+# =============================================================================
+# CORS Configuration - Development
+# =============================================================================
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:3001
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
+  allow-credentials: true
+  max-age: 3600
+
+# =============================================================================
+# Redis Configuration - Development
+# =============================================================================
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+      timeout: 2000ms
+
+# =============================================================================
+# Resilience Configuration - Development (More lenient)
+# =============================================================================
+resilience:
+  circuit-breaker:
+    failure-threshold: 10
+    timeout-duration: 120000  # 2 minutes
+    success-threshold: 3
+  retry:
+    max-attempts: 2
+    initial-delay: 500
+    backoff-multiplier: 2.0
+    max-delay: 10000
+
+# =============================================================================
+# Dead Letter Queue Configuration - Development
+# =============================================================================
+dlq:
+  processing:
+    enabled: true
+    interval: 60000  # 1 minute
+    batch-size: 10
+  max-retry-attempts: 3
+
+# =============================================================================
+# Logging Configuration - Development (Verbose)
+# =============================================================================
 logging:
   level:
-    com.userjourney.analytics: DEBUG
-    org.springframework.web: DEBUG
-    software.amazon.awssdk: INFO
     root: INFO
+    com.userjourney.analytics: DEBUG
+    software.amazon.awssdk: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  file:
+    name: logs/backend-dev.log
 
-# CORS configuration for development
-cors:
-  allowed-origins: http://localhost:3000
-  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-  allowed-headers: "*"
-
-# Disable security for local development
-spring:
-  security:
-    enabled: false
-  main:
-    allow-bean-definition-overriding: true
+# =============================================================================
+# Actuator Configuration - Development (All endpoints enabled)
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

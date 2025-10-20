@@ -5,6 +5,7 @@ import ProductionErrorBoundary from './components/ProductionErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 // import { RealTimeProvider } from './contexts/RealTimeContext'; // Disabled for demo
 import AuthWrapper from './components/Auth/AuthWrapper';
+import ProtectedRoute from './components/ProtectedRoute';
 import UserHeader from './components/UserHeader';
 import LoadingSpinner from './components/LoadingSpinner';
 import { validateOnStartup } from './config/envValidation';
@@ -19,6 +20,8 @@ const VideoLibraryPage = React.lazy(() => import('./pages/VideoLibraryPage'));
 const CalculatorPage = React.lazy(() => import('./pages/CalculatorPage'));
 const DocumentUploadPage = React.lazy(() => import('./pages/DocumentUploadPage'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const UnauthorizedPage = React.lazy(() => import('./pages/UnauthorizedPage'));
 
 // Validate environment variables on app startup
 validateOnStartup();
@@ -63,35 +66,60 @@ function App() {
                   <main className="app-main">
                     <Suspense fallback={<LoadingSpinner />}>
                       <Routes>
-                        <Route path="/" element={
+                        {/* Public routes */}
+                        <Route path="/login" element={
                           <ErrorBoundaryComponent level="component">
-                            <HomePage />
+                            <LoginPage />
                           </ErrorBoundaryComponent>
+                        } />
+                        <Route path="/unauthorized" element={
+                          <ErrorBoundaryComponent level="component">
+                            <UnauthorizedPage />
+                          </ErrorBoundaryComponent>
+                        } />
+                        
+                        {/* Protected routes - require authentication */}
+                        <Route path="/" element={
+                          <ProtectedRoute>
+                            <ErrorBoundaryComponent level="component">
+                              <HomePage />
+                            </ErrorBoundaryComponent>
+                          </ProtectedRoute>
                         } />
                         <Route path="/demo" element={
-                          <ErrorBoundaryComponent level="component">
-                            <DemoPage />
-                          </ErrorBoundaryComponent>
+                          <ProtectedRoute>
+                            <ErrorBoundaryComponent level="component">
+                              <DemoPage />
+                            </ErrorBoundaryComponent>
+                          </ProtectedRoute>
                         } />
                         <Route path="/videos" element={
-                          <ErrorBoundaryComponent level="component">
-                            <VideoLibraryPage />
-                          </ErrorBoundaryComponent>
+                          <ProtectedRoute>
+                            <ErrorBoundaryComponent level="component">
+                              <VideoLibraryPage />
+                            </ErrorBoundaryComponent>
+                          </ProtectedRoute>
                         } />
                         <Route path="/calculator" element={
-                          <ErrorBoundaryComponent level="component">
-                            <CalculatorPage />
-                          </ErrorBoundaryComponent>
+                          <ProtectedRoute>
+                            <ErrorBoundaryComponent level="component">
+                              <CalculatorPage />
+                            </ErrorBoundaryComponent>
+                          </ProtectedRoute>
                         } />
                         <Route path="/documents" element={
-                          <ErrorBoundaryComponent level="component">
-                            <DocumentUploadPage />
-                          </ErrorBoundaryComponent>
+                          <ProtectedRoute>
+                            <ErrorBoundaryComponent level="component">
+                              <DocumentUploadPage />
+                            </ErrorBoundaryComponent>
+                          </ProtectedRoute>
                         } />
                         <Route path="/profile" element={
-                          <ErrorBoundaryComponent level="component">
-                            <ProfilePage />
-                          </ErrorBoundaryComponent>
+                          <ProtectedRoute>
+                            <ErrorBoundaryComponent level="component">
+                              <ProfilePage />
+                            </ErrorBoundaryComponent>
+                          </ProtectedRoute>
                         } />
                         
                         {/* Redirect analytics routes to home - prevent access */}
