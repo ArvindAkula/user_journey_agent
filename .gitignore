@@ -219,6 +219,9 @@ markdown/
 # Old/unused frontend folder (use packages/user-app instead)
 frontend/
 
+# LocalStack data and cache
+localstack-data/
+
 # =============================================================================
 # BUILD ARTIFACTS & DEPENDENCIES
 # =============================================================================
