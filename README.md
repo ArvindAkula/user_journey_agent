@@ -7,6 +7,10 @@
 
 ## 📖 Documentation
 
+- **[System Architecture](https://github.com/ArvindAkula/user_journey_agent/blob/main/docs/architecture/User_Journey_Analytics_Agent_System_Architecture.png)** - Complete system architecture diagram
+- **[Infrastructure Architecture](https://github.com/ArvindAkula/user_journey_agent/blob/main/docs/architecture/User_Journey_Analytics_Agent_Infrastructure_Architecture.png)** - AWS infrastructure architecture diagram
+- **[AI Journey Data Flow](https://github.com/ArvindAkula/user_journey_agent/blob/main/docs/architecture/User_Journey_Analytics_Agent_Data-Flow.png)** - AI-powered user journey and data flow diagram
+- **[Intervention Flow](https://github.com/ArvindAkula/user_journey_agent/blob/main/docs/architecture/User_Journey_Analytics_AI_Agent_Workflows.png)** - AI agent workflows and intervention strategies
 - **[Complete Project Overview](PROJECT_OVERVIEW.md)** - Features, architecture, and technical details
 - **[AI Services Explained](markdown/AI_SERVICES_EXPLAINED.md)** - Understanding Bedrock, Nova Micro, SageMaker, and Kinesis
 
