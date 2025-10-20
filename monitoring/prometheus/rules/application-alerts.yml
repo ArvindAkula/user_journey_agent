@@ -1,0 +1,102 @@
+groups:
+  - name: application.rules
+    rules:
+      # User Application Alerts
+      - alert: UserAppDown
+        expr: up{job="user-app-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: user-app
+        annotations:
+          summary: "User Application is down"
+          description: "User Application has been down for more than 1 minute"
+
+      - alert: UserAppHighResponseTime
+        expr: probe_duration_seconds{job="blackbox-http", instance="https://app.yourdomain.com/health"} > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: user-app
+        annotations:
+          summary: "User Application high response time"
+          description: "User Application response time is {{ $value }}s"
+
+      # Analytics Dashboard Alerts
+      - alert: AnalyticsDashboardDown
+        expr: up{job="analytics-dashboard-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: analytics-dashboard
+        annotations:
+          summary: "Analytics Dashboard is down"
+          description: "Analytics Dashboard has been down for more than 1 minute"
+
+      - alert: AnalyticsDashboardHighResponseTime
+        expr: probe_duration_seconds{job="blackbox-http", instance="https://analytics.yourdomain.com/health"} > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: analytics-dashboard
+        annotations:
+          summary: "Analytics Dashboard high response time"
+          description: "Analytics Dashboard response time is {{ $value }}s"
+
+      # Backend API Alerts
+      - alert: BackendAPIDown
+        expr: up{job="backend-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend-api
+        annotations:
+          summary: "Backend API is down"
+          description: "Backend API has been down for more than 1 minute"
+
+      # SSL Certificate Alerts
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in less than 7 days"
+
+      - alert: SSLCertificateExpired
+        expr: probe_ssl_earliest_cert_expiry - time() <= 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SSL certificate expired"
+          description: "SSL certificate for {{ $labels.instance }} has expired"
+
+      # System Resource Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 85% for {{ $labels.instance }}"
+
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space low"
+          description: "Disk usage is above 90% for {{ $labels.instance }} on {{ $labels.mountpoint }}"

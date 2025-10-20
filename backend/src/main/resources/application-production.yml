@@ -1,0 +1,226 @@
+# Production profile configuration
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+  http2:
+    enabled: true
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+spring:
+  application:
+    name: user-journey-analytics-backend
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+      ssl: ${REDIS_SSL:false}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+# AWS Configuration - Production (Configurable Mock/Real)
+aws:
+  region: ${AWS_REGION:us-east-1}
+  access-key-id: ${AWS_ACCESS_KEY_ID}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+  mock-mode: ${AWS_MOCK_MODE:false}  # Set to false for real AWS services
+  dynamodb:
+    # When AWS_MOCK_MODE=true, uses LocalStack endpoint
+    # When AWS_MOCK_MODE=false, uses real AWS DynamoDB (no endpoint specified)
+    endpoint: ${DYNAMODB_ENDPOINT:}
+    table-prefix: ${DYNAMODB_TABLE_PREFIX:prod-}
+    user-events-table: ${DYNAMODB_USER_EVENTS_TABLE:user-events}
+    user-sessions-table: ${DYNAMODB_USER_SESSIONS_TABLE:user-sessions}
+    analytics-summary-table: ${DYNAMODB_ANALYTICS_SUMMARY_TABLE:analytics-summary}
+    audit-logs-table: ${DYNAMODB_AUDIT_LOGS_TABLE:audit-logs}
+    read-capacity: ${DYNAMODB_READ_CAPACITY:10}
+    write-capacity: ${DYNAMODB_WRITE_CAPACITY:10}
+  kinesis:
+    # When AWS_MOCK_MODE=true, uses LocalStack endpoint  
+    # When AWS_MOCK_MODE=false, uses real AWS Kinesis (no endpoint specified)
+    endpoint: ${KINESIS_ENDPOINT:}
+    stream-name: ${KINESIS_STREAM_NAME}
+    shard-count: ${KINESIS_SHARD_COUNT:2}
+  s3:
+    # When AWS_MOCK_MODE=true, uses LocalStack endpoint
+    # When AWS_MOCK_MODE=false, uses real AWS S3 (no endpoint specified)
+    endpoint: ${S3_ENDPOINT:}
+    bucket-name: ${S3_BUCKET_NAME}
+    region: ${AWS_REGION:us-east-1}
+  sqs:
+    # When AWS_MOCK_MODE=true, uses LocalStack endpoint
+    # When AWS_MOCK_MODE=false, uses real AWS SQS (no endpoint specified)
+    endpoint: ${SQS_ENDPOINT:}
+    dlq:
+      url: ${AWS_SQS_DLQ_URL}
+    retry-queue:
+      url: ${AWS_SQS_RETRY_QUEUE_URL}
+
+# Bedrock Agent Configuration - Production (Mock for Local Testing)
+bedrock:
+  agent:
+    id: ${BEDROCK_AGENT_ID:user-journey-orchestrator-prod}
+    alias:
+      id: ${BEDROCK_AGENT_ALIAS_ID:TSTALIASID}
+  mock-mode: ${AWS_MOCK_MODE:true}  # Enable mock mode for local testing
+
+# Nova Configuration - Production (Mock for Local Testing)
+nova:
+  model:
+    id: ${NOVA_MODEL_ID:amazon.nova-micro-v1:0}
+  max:
+    tokens: ${NOVA_MAX_TOKENS:1000}
+  temperature: ${NOVA_TEMPERATURE:0.3}
+  timeout:
+    seconds: ${NOVA_TIMEOUT_SECONDS:30}
+  mock-mode: ${AWS_MOCK_MODE:true}  # Enable mock mode for local testing
+
+# SageMaker Configuration - Production (Mock for Local Testing)
+sagemaker:
+  exit-risk:
+    endpoint-name: ${SAGEMAKER_EXIT_RISK_ENDPOINT:mock-endpoint}
+    model-threshold: ${SAGEMAKER_MODEL_THRESHOLD:0.5}
+  mock-mode: ${AWS_MOCK_MODE:true}  # Enable mock mode for local testing
+
+# Firebase Configuration - Production
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID}
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:classpath:firebase-service-account-prod.json}
+
+# Security Configuration - Production
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:3600} # 1 hour for production
+  encryption:
+    key: ${ENCRYPTION_KEY}
+  rate-limit:
+    enabled: true
+    requests-per-minute: ${RATE_LIMIT_RPM:1000}
+    burst-capacity: ${RATE_LIMIT_BURST:100}
+
+# Resilience Configuration - Production
+resilience:
+  circuit-breaker:
+    failure-threshold: ${RESILIENCE_CB_FAILURE_THRESHOLD:5}
+    timeout-duration: ${RESILIENCE_CB_TIMEOUT_DURATION:60000}
+    success-threshold: ${RESILIENCE_CB_SUCCESS_THRESHOLD:3}
+  retry:
+    max-attempts: ${RESILIENCE_RETRY_MAX_ATTEMPTS:3}
+    initial-delay: ${RESILIENCE_RETRY_INITIAL_DELAY:1000}
+    backoff-multiplier: ${RESILIENCE_RETRY_BACKOFF_MULTIPLIER:2.0}
+    max-delay: ${RESILIENCE_RETRY_MAX_DELAY:30000}
+
+# Dead Letter Queue Configuration - Production
+dlq:
+  processing:
+    enabled: ${DLQ_PROCESSING_ENABLED:true}
+    interval: ${DLQ_PROCESSING_INTERVAL:30000}  # 30 seconds for production
+    batch-size: ${DLQ_PROCESSING_BATCH_SIZE:20}
+  max-retry-attempts: ${DLQ_MAX_RETRY_ATTEMPTS:3}
+
+# CORS Configuration - Production
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers
+  allow-credentials: true
+  max-age: 3600
+
+# Actuator Configuration - Production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      cloudwatch:
+        enabled: true
+        namespace: ${CLOUDWATCH_NAMESPACE:UserJourneyAnalytics}
+        step: PT1M
+
+# Monitoring Configuration - Production
+monitoring:
+  enabled: ${MONITORING_ENABLED:true}
+  namespace: ${MONITORING_NAMESPACE:UserJourneyAnalytics}
+  structured-logging:
+    enabled: ${STRUCTURED_LOGGING_ENABLED:true}
+    correlation-id:
+      enabled: ${CORRELATION_ID_ENABLED:true}
+  circuit-breaker:
+    monitoring-enabled: ${CIRCUIT_BREAKER_MONITORING_ENABLED:true}
+  health-checks:
+    detailed-enabled: ${DETAILED_HEALTH_CHECKS_ENABLED:true}
+    timeout-seconds: ${HEALTH_CHECK_TIMEOUT_SECONDS:5}
+
+# Logging Configuration - Production
+logging:
+  level:
+    com.userjourney.analytics: ${LOG_LEVEL:INFO}
+    software.amazon.awssdk: WARN
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    root: ${ROOT_LOG_LEVEL:WARN}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+  file:
+    name: ${LOG_FILE_PATH:/var/log/user-journey-analytics/application.log}
+    max-size: 100MB
+    max-history: 30
+  cloudwatch:
+    enabled: ${CLOUDWATCH_LOGGING_ENABLED:true}
+    log-group: ${CLOUDWATCH_LOG_GROUP:/aws/user-journey-analytics/application}
+    log-stream: ${CLOUDWATCH_LOG_STREAM:${HOSTNAME:localhost}-${spring.application.name}}
+    region: ${AWS_REGION:us-east-1}
+    retention-days: ${CLOUDWATCH_LOG_RETENTION_DAYS:30}
+    batch-size: ${CLOUDWATCH_LOG_BATCH_SIZE:100}
+    batch-timeout: ${CLOUDWATCH_LOG_BATCH_TIMEOUT:5000}
+
+# Additional Spring Security Configuration - Production
+security:
+  enabled: true
+  allow-bean-definition-overriding: false

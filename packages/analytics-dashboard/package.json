@@ -1,0 +1,79 @@
+{
+  "name": "@aws-agent/analytics-dashboard",
+  "version": "1.0.0",
+  "description": "Analytics dashboard application for internal analytics team",
+  "private": true,
+  "dependencies": {
+    "@aws-agent/shared": "1.0.0",
+    "date-fns": "^2.30.0",
+    "file-saver": "^2.0.5",
+    "lodash": "^4.17.21",
+    "papaparse": "^5.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-grid-layout": "^1.4.4",
+    "react-router-dom": "^6.8.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.8.0",
+    "socket.io-client": "^4.8.0",
+    "typescript": "^4.9.5",
+    "web-vitals": "^3.5.2"
+  },
+  "scripts": {
+    "start": "BROWSER=none PORT=3001 craco start",
+    "start:dev": "BROWSER=none PORT=3001 REACT_APP_ENVIRONMENT=development craco start",
+    "start:staging": "BROWSER=none PORT=3001 REACT_APP_ENVIRONMENT=staging craco start",
+    "build": "craco build",
+    "build:dev": "REACT_APP_ENVIRONMENT=development craco build",
+    "build:staging": "REACT_APP_ENVIRONMENT=staging craco build",
+    "build:prod": "REACT_APP_ENVIRONMENT=production GENERATE_SOURCEMAP=false craco build",
+    "build:analyze": "REACT_APP_ENVIRONMENT=production ANALYZE_BUNDLE=true craco build",
+    "test": "craco test --watchAll=false",
+    "test:watch": "craco test",
+    "test:coverage": "craco test --coverage --watchAll=false",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
+    "test:integration": "craco test --testPathPattern=integration --watchAll=false",
+    "eject": "react-scripts eject",
+    "dev": "npm start",
+    "clean": "rm -rf build",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "typecheck": "tsc --noEmit",
+    "env:validate": "node -e \"require('./src/config/envValidation').validateOnStartup()\"",
+    "env:check": "node -e \"console.log('Environment:', process.env.REACT_APP_ENVIRONMENT || 'development')\"",
+    "config:summary": "node -e \"console.log(JSON.stringify(require('./src/config/envValidation').getConfigSummary(), null, 2))\""
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@testing-library/jest-dom": "^5.16.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/file-saver": "^2.0.7",
+    "@types/lodash": "^4.14.200",
+    "@types/node": "^20.0.0",
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "cypress": "^13.6.0",
+    "webpack-bundle-analyzer": "^4.9.0"
+  }
+}

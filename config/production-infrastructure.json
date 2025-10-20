@@ -1,0 +1,47 @@
+{
+  "environment": "prod",
+  "aws_region": "us-east-1",
+  "deployment_type": "existing_resources_validated",
+  "validation_timestamp": "2025-10-15T00:30:58Z",
+  
+  "infrastructure": {
+    "dynamodb": {
+      "user_profiles_table": "user-journey-analytics-user-profiles-dev",
+      "user_events_table": "user-journey-analytics-user-events-dev",
+      "struggle_signals_table": "user-journey-analytics-struggle-signals-dev",
+      "video_engagement_table": "user-journey-analytics-video-engagement-dev",
+      "terraform_locks_table": "user-journey-analytics-terraform-locks-dev"
+    },
+    
+    "kinesis": {
+      "user_events_stream": "user-journey-analytics-user-events"
+    },
+    
+    "s3": {
+      "analytics_data_bucket": "user-journey-analytics-analytics-data-dev-9bf2a9c5",
+      "event_logs_bucket": "user-journey-analytics-event-logs-dev-9bf2a9c5",
+      "lambda_artifacts_bucket": "user-journey-analytics-lambda-artifacts-dev-9bf2a9c5"
+    }
+  },
+  
+  "configuration": {
+    "mock_mode": false,
+    "localstack_enabled": false,
+    "production_mode": true,
+    "cost_optimized": true,
+    "infrastructure_validated": true
+  },
+  
+  "security": {
+    "vpc_enabled": false,
+    "encryption_at_rest": true,
+    "encryption_in_transit": true,
+    "iam_roles_configured": true
+  },
+  
+  "monitoring": {
+    "cloudwatch_enabled": true,
+    "logging_enabled": true,
+    "metrics_enabled": true
+  }
+}

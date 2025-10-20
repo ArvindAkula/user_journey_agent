@@ -1,137 +1,305 @@
-# User Journey Analytics Agent
+# Environment Setup Guide
 
-An intelligent AI-powered system that provides real-time user behavior analysis, predictive analytics, and automated interventions for mobile and web applications.
+## Quick Start
 
-## Project Structure
-
-```
-user-journey-analytics-agent/
-├── frontend/                 # React.js TypeScript frontend
-│   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── config/          # Configuration files
-│   │   ├── services/        # API services
-│   │   └── utils/           # Utility functions
-│   ├── public/              # Static assets
-│   └── package.json         # Frontend dependencies
-├── backend/                 # Spring Boot backend
-│   ├── src/main/java/       # Java source code
-│   │   └── com/userjourney/analytics/
-│   │       ├── config/      # Configuration classes
-│   │       ├── controller/  # REST controllers
-│   │       ├── model/       # Data models
-│   │       ├── service/     # Business logic
-│   │       └── repository/  # Data access layer
-│   ├── src/main/resources/  # Configuration files
-│   └── pom.xml              # Maven dependencies
-├── infrastructure/          # AWS CDK infrastructure
-│   ├── lib/                 # CDK stack definitions
-│   ├── bin/                 # CDK app entry point
-│   └── package.json         # Infrastructure dependencies
-└── .kiro/specs/            # Project specifications
-    └── user-journey-analytics-agent/
-        ├── requirements.md  # Project requirements
-        ├── design.md        # System design
-        └── tasks.md         # Implementation tasks
-```
-
-## Technology Stack
-
-### Frontend
-- **React.js 18** with TypeScript
-- **React Router** for navigation
-- **Firebase Analytics** for event tracking
-- **AWS Amplify** for AWS integration
-- **Recharts** for data visualization
-
-### Backend
-- **Spring Boot 3.2** with Java 17
-- **Spring Security** for authentication
-- **AWS SDK v2** for AWS services integration
-- **Firebase Admin SDK** for Firebase integration
-- **Maven** for dependency management
-
-### Infrastructure
-- **AWS CDK** for Infrastructure as Code
-- **Amazon DynamoDB** for user profiles and events
-- **Amazon Kinesis** for real-time event streaming
-- **Amazon S3** for data storage
-- **Amazon Timestream** for time-series analytics
-- **Amazon Bedrock** for AI/ML capabilities
-- **Amazon SageMaker** for machine learning models
-- **API Gateway** for REST API management
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18+
-- Java 17+
-- Maven 3.8+
-- AWS CLI configured
-- AWS CDK CLI installed
-
-### Installation
-
-1. **Install Frontend Dependencies**
+1. **Copy the template:**
    ```bash
-   cd frontend
-   npm install
+   cp .env.production.template .env.production
    ```
 
-2. **Install Backend Dependencies**
+2. **Fill in your credentials** (see sections below)
+
+3. **Run the application:**
    ```bash
+   # Backend
    cd backend
-   mvn clean install
-   ```
+   ./mvnw spring-boot:run
 
-3. **Install Infrastructure Dependencies**
-   ```bash
-   cd infrastructure
+   # Frontend
+   cd packages/user-app
    npm install
-   ```
-
-### Development
-
-1. **Start Frontend Development Server**
-   ```bash
-   cd frontend
    npm start
    ```
 
-2. **Start Backend Development Server**
+---
+
+## Required Configuration
+
+### 1. AWS Credentials
+
+Replace these with your AWS account details:
+
+```bash
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=AKIA...  # Your AWS Access Key
+AWS_SECRET_ACCESS_KEY=...  # Your AWS Secret Key
+```
+
+**How to get:**
+- Go to AWS Console → IAM → Users → Security Credentials
+- Create Access Key
+- Save both Access Key ID and Secret Access Key
+
+### 2. AWS Account ID
+
+Replace `YOUR_ACCOUNT_ID` in all SQS URLs with your AWS account ID:
+
+```bash
+# Find your account ID:
+aws sts get-caller-identity --query Account --output text
+
+# Then replace in:
+AWS_SQS_EVENT_PROCESSING_QUEUE_URL=https://sqs.us-east-1.amazonaws.com/YOUR_ACCOUNT_ID/...
+AWS_SQS_EVENT_PROCESSING_DLQ_URL=https://sqs.us-east-1.amazonaws.com/YOUR_ACCOUNT_ID/...
+# ... and all other SQS URLs
+```
+
+### 3. Firebase Configuration
+
+Replace with your Firebase project details:
+
+```bash
+FIREBASE_PROJECT_ID=your-firebase-project
+FIREBASE_API_KEY=AIza...
+FIREBASE_AUTH_DOMAIN=your-firebase-project.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=your-firebase-project.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=123456789012
+FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+```
+
+**How to get:**
+- Go to Firebase Console → Project Settings
+- Scroll to "Your apps" section
+- Copy the config values
+
+### 4. Security Keys
+
+Generate secure keys for JWT and encryption:
+
+```bash
+# Generate JWT Secret (256-bit)
+openssl rand -base64 32
+
+# Generate Encryption Key (32 characters)
+openssl rand -hex 16
+```
+
+Then update:
+```bash
+JWT_SECRET=your-generated-jwt-secret
+ENCRYPTION_KEY=your-generated-encryption-key
+```
+
+---
+
+## Optional Configuration
+
+### API Endpoints
+
+If deploying to production, update these:
+
+```bash
+API_BASE_URL=https://api.yourdomain.com
+ANALYTICS_API_BASE_URL=https://api.yourdomain.com/analytics
+WEBSOCKET_URL=wss://api.yourdomain.com/ws
+```
+
+For local development, keep as:
+```bash
+API_BASE_URL=http://localhost:8080
+```
+
+### Domain Configuration
+
+For production deployment:
+
+```bash
+USER_APP_DOMAIN=app.yourdomain.com
+ANALYTICS_DASHBOARD_DOMAIN=analytics.yourdomain.com
+```
+
+### CORS Origins
+
+Update to match your domains:
+
+```bash
+CORS_ALLOWED_ORIGINS=https://app.yourdomain.com,https://analytics.yourdomain.com
+```
+
+For local development:
+```bash
+CORS_ALLOWED_ORIGINS=http://localhost,http://localhost:3000,http://localhost:3001
+```
+
+---
+
+## AWS Services Setup
+
+### 1. DynamoDB Tables
+
+The application expects these tables (created by CDK/Terraform):
+
+- `user-journey-analytics-user-events`
+- `user-journey-analytics-user-sessions`
+- `user-journey-analytics-analytics-summary`
+- `user-journey-analytics-audit-logs`
+- `user-journey-analytics-struggle-signals`
+- `user-journey-analytics-video-engagement`
+- `user-journey-analytics-user-profiles`
+
+**Deploy with CDK:**
+```bash
+cd infrastructure
+npm install
+cdk deploy
+```
+
+### 2. Kinesis Stream
+
+Stream name: `user-journey-analytics-user-events`
+
+**Create manually:**
+```bash
+aws kinesis create-stream \
+  --stream-name user-journey-analytics-user-events \
+  --shard-count 2 \
+  --region us-east-1
+```
+
+### 3. S3 Bucket
+
+Bucket name: `user-journey-analytics`
+
+**Create manually:**
+```bash
+aws s3 mb s3://user-journey-analytics --region us-east-1
+```
+
+### 4. SQS Queues
+
+Create these queues (or use CDK):
+
+- `user-journey-analytics-event-processing`
+- `user-journey-analytics-event-processing-dlq`
+- `user-journey-analytics-struggle-signals`
+- `user-journey-analytics-video-analysis`
+- `user-journey-analytics-intervention-execution`
+
+### 5. Bedrock Access
+
+Enable Amazon Bedrock in your AWS account:
+
+1. Go to AWS Console → Bedrock
+2. Request model access for "Amazon Nova Micro"
+3. Wait for approval (usually instant)
+
+---
+
+## Verification
+
+### Check Configuration
+
+```bash
+# Test AWS credentials
+aws sts get-caller-identity
+
+# Test DynamoDB access
+aws dynamodb list-tables --region us-east-1
+
+# Test Kinesis access
+aws kinesis list-streams --region us-east-1
+
+# Test Bedrock access
+aws bedrock list-foundation-models --region us-east-1
+```
+
+### Test Application
+
+1. **Start Backend:**
    ```bash
    cd backend
-   mvn spring-boot:run
+   ./mvnw spring-boot:run
    ```
 
-3. **Deploy Infrastructure (Optional)**
+2. **Check Health:**
    ```bash
-   cd infrastructure
-   npm run deploy
+   curl http://localhost:8080/api/health
    ```
 
-## Features
+3. **Start Frontend:**
+   ```bash
+   cd packages/user-app
+   npm start
+   ```
 
-- **Real-time User Event Tracking** via Firebase Analytics
-- **AI-Powered Behavior Analysis** using Amazon Bedrock
-- **Predictive Drop-off Prevention** with SageMaker ML models
-- **Automated Intervention System** for user assistance
-- **Video Engagement Intelligence** for content optimization
-- **Natural Language Analytics** with Amazon Q
-- **Comprehensive Analytics Dashboard** with real-time insights
+4. **Open Browser:**
+   ```
+   http://localhost:3000
+   ```
 
-## Architecture
+---
 
-The system follows a microservices architecture with:
-- React frontend for user interface
-- Spring Boot backend for API services
-- AWS managed services for scalability and AI capabilities
-- Event-driven architecture using Kinesis for real-time processing
+## Troubleshooting
 
-## Contributing
+### AWS Credentials Not Working
 
-Please refer to the project specifications in `.kiro/specs/` for detailed requirements and implementation guidelines.
+```bash
+# Check credentials
+aws configure list
 
-## License
+# Reconfigure
+aws configure
+```
 
-This project is part of a hackathon demonstration and is for educational purposes.# user_journey_agent
+### DynamoDB Tables Not Found
+
+```bash
+# List tables
+aws dynamodb list-tables --region us-east-1
+
+# Deploy infrastructure
+cd infrastructure
+cdk deploy
+```
+
+### Firebase Not Working
+
+- Check Firebase Console → Project Settings
+- Verify API key is correct
+- Check domain is authorized in Firebase Console
+
+### CORS Errors
+
+Update `CORS_ALLOWED_ORIGINS` to include your frontend URL:
+```bash
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+```
+
+---
+
+## Production Checklist
+
+Before deploying to production:
+
+- [ ] Replace all placeholder values
+- [ ] Generate secure JWT_SECRET and ENCRYPTION_KEY
+- [ ] Update API_BASE_URL to production domain
+- [ ] Update CORS_ALLOWED_ORIGINS to production domains
+- [ ] Set DEBUG_MODE=false
+- [ ] Set LOG_LEVEL=INFO or WARN
+- [ ] Deploy AWS infrastructure (CDK/Terraform)
+- [ ] Test all endpoints
+- [ ] Enable SSL/TLS certificates
+- [ ] Set up monitoring and alerts
+
+---
+
+## Need Help?
+
+- Check `DEPLOYMENT_GUIDE.md` for detailed deployment instructions
+- Review `SECURITY_CLEANUP.md` for security best practices
+- See `AI_SERVICES_EXPLAINED.md` for AI services setup
+
+---
+
+**Ready to go!** 🚀

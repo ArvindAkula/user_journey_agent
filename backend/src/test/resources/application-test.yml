@@ -1,0 +1,25 @@
+# Test configuration
+spring:
+  profiles:
+    active: test
+  application:
+    name: user-journey-analytics-test
+
+# Disable AWS services for testing
+aws:
+  mock-mode: true
+  region: us-east-1
+
+# Disable monitoring for testing
+monitoring:
+  enabled: false
+
+# Disable security for testing
+security:
+  enabled: false
+
+# Logging configuration for tests
+logging:
+  level:
+    com.userjourney.analytics: DEBUG
+    root: WARN

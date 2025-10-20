@@ -1,0 +1,26 @@
+[
+  {
+    "id": "video-1",
+    "title": "Introduction to Personal Finance",
+    "description": "Learn the basics of personal finance management",
+    "duration": 300,
+    "thumbnailUrl": "https://example.com/thumb1.jpg",
+    "category": "Financial Planning"
+  },
+  {
+    "id": "video-2",
+    "title": "Understanding Loan Types",
+    "description": "Different types of loans and their characteristics",
+    "duration": 450,
+    "thumbnailUrl": "https://example.com/thumb2.jpg",
+    "category": "Loan Management"
+  },
+  {
+    "id": "video-3",
+    "title": "Investment Basics",
+    "description": "Getting started with investments",
+    "duration": 600,
+    "thumbnailUrl": "https://example.com/thumb3.jpg",
+    "category": "Investment Basics"
+  }
+]

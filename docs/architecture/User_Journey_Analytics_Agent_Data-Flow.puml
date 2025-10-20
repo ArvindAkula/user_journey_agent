@@ -1,0 +1,104 @@
+@startuml AI Data Flow - User Journey Analytics
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam sequenceArrowThickness 2
+skinparam sequenceLifeLineBorderColor #555555
+
+title **AI-Powered User Journey Analytics - Data Flow**
+
+actor "👤 User" as user #lightblue
+participant "**Frontend**\n(React)" as frontend #90EE90
+participant "**Backend**\n(Spring Boot)" as backend #FFB6C1
+participant "**Kinesis**\nStream" as kinesis #FF9900
+participant "**Lambda**\n(Python)" as lambda #FF9900
+database "**DynamoDB**\n(Events)" as dynamodb1 #3B48CC
+participant "**Bedrock**\n(Nova Micro)" as bedrock #FF9900
+database "**DynamoDB**\n(Signals)" as dynamodb2 #3B48CC
+participant "**Backend**\n(Polling)" as backend2 #FFB6C1
+participant "**Frontend**\n(Popup)" as frontend2 #90EE90
+
+== Event Tracking ==
+user -> frontend: Clicks calculator
+activate frontend
+frontend -> frontend: Track event
+frontend -> backend: POST /api/events/track
+deactivate frontend
+
+activate backend
+backend -> backend: Validate & enrich
+backend -> kinesis: Send event
+deactivate backend
+
+== AI Processing ==
+activate kinesis
+kinesis -> lambda: Trigger with event
+deactivate kinesis
+
+activate lambda
+lambda -> dynamodb1: Store event
+activate dynamodb1
+dynamodb1 --> lambda: Stored
+deactivate dynamodb1
+
+lambda -> dynamodb1: Get last 20 events
+activate dynamodb1
+dynamodb1 --> lambda: User history
+deactivate dynamodb1
+
+lambda -> bedrock: Analyze journey
+activate bedrock
+note right of bedrock
+  **AI Analysis:**
+  - Engagement level
+  - Exit risk score
+  - Recommended actions
+end note
+bedrock --> lambda: Exit Risk: 75
+deactivate bedrock
+
+lambda -> dynamodb2: Store struggle signal
+activate dynamodb2
+note right of dynamodb2
+  **Struggle Signal:**
+  - userId: demo-user
+  - exitRiskScore: 75
+  - severity: high
+  - signalType: ai_analysis
+end note
+dynamodb2 --> lambda: Stored
+deactivate dynamodb2
+deactivate lambda
+
+== Intervention Trigger ==
+frontend2 -> backend2: Poll for interventions\nGET /api/interventions/{userId}/pending
+activate backend2
+backend2 -> dynamodb2: Check for high risk signals
+activate dynamodb2
+dynamodb2 --> backend2: Found: exitRisk = 75
+deactivate dynamodb2
+
+backend2 --> frontend2: Intervention event
+deactivate backend2
+
+activate frontend2
+frontend2 -> frontend2: Show popup
+frontend2 -> user: Display "Need Help?" popup
+deactivate frontend2
+
+note over user
+  **Popup Message:**
+  "We noticed you might be
+  having some difficulty.
+  Would you like to chat?"
+end note
+
+user -> frontend2: Clicks "Start Live Chat"
+activate frontend2
+frontend2 -> backend: Track intervention acceptance
+deactivate frontend2
+
+@enduml

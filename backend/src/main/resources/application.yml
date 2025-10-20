@@ -1,0 +1,102 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: user-journey-analytics-backend
+  profiles:
+    active: dev
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+
+# AWS Configuration
+aws:
+  region: us-east-1
+  dynamodb:
+    endpoint: http://localhost:8000  # For local development
+  kinesis:
+    stream-name: user-events-stream
+  s3:
+    bucket-name: user-journey-analytics-data
+  sqs:
+    dlq:
+      url: ${AWS_SQS_DLQ_URL:}
+    retry-queue:
+      url: ${AWS_SQS_RETRY_QUEUE_URL:}
+
+# Bedrock Agent Configuration
+bedrock:
+  agent:
+    id: ${BEDROCK_AGENT_ID:user-journey-orchestrator-dev}
+    alias:
+      id: ${BEDROCK_AGENT_ALIAS_ID:TSTALIASID}
+
+# Nova Configuration
+nova:
+  model:
+    id: ${NOVA_MODEL_ID:amazon.nova-micro-v1:0}
+  max:
+    tokens: ${NOVA_MAX_TOKENS:1000}
+  temperature: ${NOVA_TEMPERATURE:0.3}
+  timeout:
+    seconds: ${NOVA_TIMEOUT_SECONDS:30}
+
+# Firebase Configuration
+firebase:
+  project-id: user-journey-analytics
+  credentials-path: classpath:firebase-service-account.json
+
+# Security Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:ZGVmYXVsdFNlY3JldEtleVRoYXRTaG91bGRCZUNoYW5nZWRJblByb2R1Y3Rpb24=}
+    expiration: ${JWT_EXPIRATION:86400} # 24 hours
+  encryption:
+    key: ${ENCRYPTION_KEY:ZGVmYXVsdEVuY3J5cHRpb25LZXlUaGF0U2hvdWxkQmVDaGFuZ2VkSW5Qcm9kdWN0aW9u}
+  rate-limit:
+    enabled: true
+    requests-per-minute: 100
+
+# Redis Configuration for Rate Limiting is now merged above
+
+# Resilience Configuration
+resilience:
+  circuit-breaker:
+    failure-threshold: ${RESILIENCE_CB_FAILURE_THRESHOLD:5}
+    timeout-duration: ${RESILIENCE_CB_TIMEOUT_DURATION:60000}
+    success-threshold: ${RESILIENCE_CB_SUCCESS_THRESHOLD:3}
+  retry:
+    max-attempts: ${RESILIENCE_RETRY_MAX_ATTEMPTS:3}
+    initial-delay: ${RESILIENCE_RETRY_INITIAL_DELAY:500}
+    backoff-multiplier: ${RESILIENCE_RETRY_BACKOFF_MULTIPLIER:2.0}
+    max-delay: ${RESILIENCE_RETRY_MAX_DELAY:30000}
+
+# Dead Letter Queue Configuration
+dlq:
+  processing:
+    enabled: ${DLQ_PROCESSING_ENABLED:true}
+    interval: ${DLQ_PROCESSING_INTERVAL:60000}
+    batch-size: ${DLQ_PROCESSING_BATCH_SIZE:10}
+  max-retry-attempts: ${DLQ_MAX_RETRY_ATTEMPTS:3}
+
+# SageMaker Configuration
+sagemaker:
+  exit-risk:
+    endpoint-name: ${SAGEMAKER_EXIT_RISK_ENDPOINT:exit-risk-predictor}
+    model-threshold: ${SAGEMAKER_MODEL_THRESHOLD:0.5}
+
+# Logging
+logging:
+  level:
+    com.userjourney.analytics: DEBUG
+    software.amazon.awssdk: INFO
+    org.springframework.security: DEBUG

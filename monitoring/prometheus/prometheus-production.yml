@@ -1,0 +1,163 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: 'production'
+    cluster: 'user-journey-analytics'
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Spring Boot Application Metrics
+  - job_name: 'user-journey-analytics-backend'
+    static_configs:
+      - targets: ['backend:8080']
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    params:
+      format: ['prometheus']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'backend'
+      - target_label: service
+        replacement: 'user-journey-analytics-backend'
+
+  # Frontend Application Metrics (if available)
+  - job_name: 'user-journey-analytics-frontend'
+    static_configs:
+      - targets: ['user-app:3000', 'analytics-dashboard:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: 'user-app:3000'
+        target_label: service
+        replacement: 'user-app'
+      - source_labels: [__address__]
+        regex: 'analytics-dashboard:3001'
+        target_label: service
+        replacement: 'analytics-dashboard'
+
+  # Nginx Metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:9113']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Redis Metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:9121']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Node Exporter for System Metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # AWS CloudWatch Metrics (via CloudWatch Exporter)
+  - job_name: 'cloudwatch-exporter'
+    static_configs:
+      - targets: ['cloudwatch-exporter:9106']
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    metrics_path: '/metrics'
+
+  # Custom Application Metrics
+  - job_name: 'custom-metrics'
+    static_configs:
+      - targets: ['backend:8080']
+    metrics_path: '/api/monitoring/metrics/prometheus'
+    scrape_interval: 30s
+    honor_labels: true
+
+  # Blackbox Exporter for Endpoint Monitoring
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://user-app:3000/health
+        - http://analytics-dashboard:3001/health
+        - http://backend:8080/actuator/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+# Recording rules for performance optimization
+recording_rules:
+  - name: user_journey_analytics.rules
+    interval: 30s
+    rules:
+      # Request rate calculations
+      - record: user_journey:request_rate_5m
+        expr: rate(http_requests_total[5m])
+      
+      # Error rate calculations
+      - record: user_journey:error_rate_5m
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+      
+      # Response time percentiles
+      - record: user_journey:response_time_p95_5m
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+      
+      - record: user_journey:response_time_p99_5m
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+      
+      # Business metrics
+      - record: user_journey:events_processed_rate_5m
+        expr: rate(user_events_processed_total[5m])
+      
+      - record: user_journey:struggle_signals_rate_5m
+        expr: rate(struggle_signals_detected_total[5m])
+      
+      - record: user_journey:interventions_rate_5m
+        expr: rate(interventions_executed_total[5m])
+      
+      # System health indicators
+      - record: user_journey:system_health
+        expr: up{job="user-journey-analytics-backend"}
+      
+      - record: user_journey:circuit_breaker_open_count
+        expr: sum(circuit_breaker_state{state="open"}) by (service)
+      
+      # Memory usage
+      - record: user_journey:memory_usage_percent
+        expr: (jvm_memory_used_bytes / jvm_memory_max_bytes) * 100
+      
+      # Database connection pool metrics
+      - record: user_journey:db_connection_usage_percent
+        expr: (hikaricp_connections_active / hikaricp_connections_max) * 100
+
+# Federation configuration for multi-cluster setup
+federation:
+  - job_name: 'federate'
+    scrape_interval: 15s
+    honor_labels: true
+    metrics_path: '/federate'
+    params:
+      'match[]':
+        - '{job=~"user-journey.*"}'
+        - '{__name__=~"user_journey:.*"}'
+    static_configs:
+      - targets:
+        - 'prometheus-cluster-1:9090'
+        - 'prometheus-cluster-2:9090'

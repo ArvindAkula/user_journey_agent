@@ -1,0 +1,363 @@
+.analytics-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.analytics-login-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.analytics-login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.analytics-login-header h2 {
+  color: #2d3748;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.analytics-login-header p {
+  color: #718096;
+  font-size: 16px;
+  margin: 0;
+}
+
+.analytics-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input:disabled {
+  background-color: #f7fafc;
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.form-group input::placeholder {
+  color: #a0aec0;
+}
+
+.error-message {
+  background-color: #fed7d7;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid #feb2b2;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.login-button {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.login-button.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.login-button.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.login-button.demo {
+  background: #f7fafc;
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+}
+
+.login-button.demo:hover:not(:disabled) {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.analytics-login-footer {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.analytics-login-footer p {
+  color: #718096;
+  margin: 0;
+}
+
+.analytics-login-footer small {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Permission Guard Styles */
+.permission-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 40px;
+}
+
+.permission-denied-icon {
+  font-size: 64px;
+  color: #e53e3e;
+  margin-bottom: 20px;
+}
+
+.permission-denied h2 {
+  color: #2d3748;
+  font-size: 24px;
+  margin: 0 0 12px 0;
+}
+
+.permission-denied p {
+  color: #718096;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+  max-width: 400px;
+}
+
+.permission-denied button {
+  padding: 12px 24px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.permission-denied button:hover {
+  background: #5a67d8;
+}
+
+/* User Management Styles */
+.user-management-container {
+  padding: 24px;
+}
+
+.user-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.user-management-header h2 {
+  color: #2d3748;
+  font-size: 24px;
+  margin: 0;
+}
+
+.add-user-button {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-user-button:hover {
+  background: #5a67d8;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.users-table th,
+.users-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.users-table th {
+  background: #f7fafc;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.users-table td {
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.users-table tr:hover {
+  background: #f7fafc;
+}
+
+.user-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.user-status.active {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.user-status.inactive {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.user-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.user-action-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-action-button.edit {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.user-action-button.edit:hover {
+  background: #90cdf4;
+}
+
+.user-action-button.deactivate {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.user-action-button.deactivate:hover {
+  background: #feb2b2;
+}
+
+.user-action-button.reset {
+  background: #faf089;
+  color: #744210;
+}
+
+.user-action-button.reset:hover {
+  background: #f6e05e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .analytics-login-container {
+    padding: 10px;
+  }
+
+  .analytics-login-card {
+    padding: 30px 20px;
+  }
+
+  .analytics-login-header h2 {
+    font-size: 24px;
+  }
+
+  .users-table {
+    font-size: 12px;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 8px 12px;
+  }
+
+  .user-management-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+}

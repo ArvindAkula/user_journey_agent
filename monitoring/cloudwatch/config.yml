@@ -1,0 +1,65 @@
+region: us-east-1
+metrics:
+  # DynamoDB Metrics
+  - aws_namespace: AWS/DynamoDB
+    aws_metric_name: ConsumedReadCapacityUnits
+    aws_dimensions: [TableName]
+    aws_statistics: [Sum]
+    
+  - aws_namespace: AWS/DynamoDB
+    aws_metric_name: ConsumedWriteCapacityUnits
+    aws_dimensions: [TableName]
+    aws_statistics: [Sum]
+    
+  - aws_namespace: AWS/DynamoDB
+    aws_metric_name: SuccessfulRequestLatency
+    aws_dimensions: [TableName, Operation]
+    aws_statistics: [Average]
+    
+  - aws_namespace: AWS/DynamoDB
+    aws_metric_name: ThrottledRequests
+    aws_dimensions: [TableName, Operation]
+    aws_statistics: [Sum]
+
+  # Kinesis Metrics
+  - aws_namespace: AWS/Kinesis
+    aws_metric_name: IncomingRecords
+    aws_dimensions: [StreamName]
+    aws_statistics: [Sum]
+    
+  - aws_namespace: AWS/Kinesis
+    aws_metric_name: OutgoingRecords
+    aws_dimensions: [StreamName]
+    aws_statistics: [Sum]
+    
+  - aws_namespace: AWS/Kinesis
+    aws_metric_name: WriteProvisionedThroughputExceeded
+    aws_dimensions: [StreamName]
+    aws_statistics: [Sum]
+
+  # S3 Metrics
+  - aws_namespace: AWS/S3
+    aws_metric_name: NumberOfObjects
+    aws_dimensions: [BucketName, StorageType]
+    aws_statistics: [Average]
+    
+  - aws_namespace: AWS/S3
+    aws_metric_name: BucketSizeBytes
+    aws_dimensions: [BucketName, StorageType]
+    aws_statistics: [Average]
+
+  # SQS Metrics
+  - aws_namespace: AWS/SQS
+    aws_metric_name: ApproximateNumberOfMessages
+    aws_dimensions: [QueueName]
+    aws_statistics: [Average]
+    
+  - aws_namespace: AWS/SQS
+    aws_metric_name: NumberOfMessagesSent
+    aws_dimensions: [QueueName]
+    aws_statistics: [Sum]
+    
+  - aws_namespace: AWS/SQS
+    aws_metric_name: NumberOfMessagesReceived
+    aws_dimensions: [QueueName]
+    aws_statistics: [Sum]

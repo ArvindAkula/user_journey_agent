@@ -1,0 +1,45 @@
+services:
+  # LocalStack for AWS services
+  localstack:
+    container_name: localstack-user-journey
+    image: localstack/localstack:3.0
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External services port range
+    environment:
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=dynamodb,kinesis,s3,lambda,sqs,sns,ses
+      - DATA_DIR=/tmp/localstack/data
+      - PERSISTENCE=1
+    volumes:
+      - "./localstack-data:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - user-journey-network
+
+  # Redis for rate limiting and caching
+  redis:
+    container_name: redis-user-journey
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - user-journey-network
+
+  # DynamoDB Admin UI (optional)
+  dynamodb-admin:
+    container_name: dynamodb-admin
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://localstack:4566
+    depends_on:
+      - localstack
+    networks:
+      - user-journey-network
+
+networks:
+  user-journey-network:
+    driver: bridge

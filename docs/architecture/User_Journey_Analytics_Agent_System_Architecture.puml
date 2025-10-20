@@ -1,0 +1,183 @@
+@startuml User Journey Analytics Agent - System Architecture
+
+!define LIGHTBLUE #E3F2FD
+!define LIGHTGREEN #E8F5E8
+!define LIGHTORANGE #FFF3E0
+!define LIGHTPURPLE #F3E5F5
+!define LIGHTGRAY #F5F5F5
+!define LIGHTYELLOW #FFFDE7
+
+title User Journey Analytics Agent - System Architecture
+
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+skinparam component {
+    BackgroundColor LIGHTBLUE
+    BorderColor #1976D2
+}
+skinparam database {
+    BackgroundColor LIGHTGREEN
+    BorderColor #388E3C
+}
+skinparam storage {
+    BackgroundColor LIGHTORANGE
+    BorderColor #F57C00
+}
+skinparam cloud {
+    BackgroundColor LIGHTGRAY
+    BorderColor #616161
+}
+skinparam package {
+    BackgroundColor LIGHTYELLOW
+    BorderColor #F57F17
+    FontStyle bold
+}
+skinparam actor {
+    BackgroundColor LIGHTPURPLE
+    BorderColor #7B1FA2
+}
+
+
+' Define actors and external systems
+actor "Mobile App Users" as users
+actor "Analytics Team" as analysts
+actor "System Admin" as admin
+
+' Frontend Layer
+package "Frontend Layer" {
+    component "User Application\n[Port 3000]" as userApp
+    component "Analytics Dashboard\n[Port 3001]" as analyticsDashboard
+    component "Shared Library\n[Components & Services]" as sharedLib
+    component "Firebase Analytics" as firebase
+    component "WebSocket Client" as websocket
+}
+
+' API Layer
+package "API Layer" {
+    component "API Gateway\n[REST API]" as apigateway
+    component "Spring Boot Backend\n[Port 8080]" as springboot
+    component "Load Balancer" as lb
+}
+
+' Processing Layer
+package "Processing Layer" {
+    component "Event Processor\n[Lambda]" as eventProcessor
+    component "Struggle Detector\n[Lambda]" as struggleDetector
+    component "Video Analyzer\n[Lambda]" as videoAnalyzer
+    component "Intervention Executor\n[Lambda]" as interventionExecutor
+
+    component "Kinesis Data Stream\n[Real-time Events]" as kinesisStream
+    component "Kinesis Analytics\n[Stream Processing]" as kinesisAnalytics
+}
+
+' AI/ML Layer
+package "AI/ML Layer" {
+    component "Bedrock Agent\n[AI Orchestration]" as bedrockAgent
+    component "SageMaker Endpoint\n[ML Models]" as sagemakerEndpoint
+    component "Amazon Nova" as nova
+}
+
+' Data Layer
+package "Data Layer" {
+    database "User Profiles\n[DynamoDB]" as userProfiles
+    database "User Events\n[DynamoDB]" as userEvents
+    database "Struggle Signals\n[DynamoDB]" as struggleSignals
+    database "Video Engagement\n[DynamoDB]" as videoEngagement
+
+    database "Timestream DB\n[Time-series Analytics]" as timestreamDB
+    storage "S3 Storage\n[Logs & Artifacts]" as s3Bucket
+}
+
+' Infrastructure Layer
+package "Infrastructure Layer" {
+    cloud "VPC\n[Network Isolation]" as vpc
+    component "IAM Roles\n[Access Control]" as iamRoles
+    component "CloudWatch\n[Monitoring & Logging]" as monitoring
+}
+
+' External Services
+package "External Services" {
+    component "SNS/SES\n[Notifications]" as notifications
+    component "CloudFront CDN" as cdn
+}
+
+' User Interactions
+users -[#FF6B6B]-> userApp : User Interactions
+users -[#FF6B6B]-> firebase : Generate Events
+analysts -[#45B7D1]-> analyticsDashboard : Analytics & Insights
+admin -[#96CEB4]-> monitoring : System Monitoring
+
+' Shared Library Dependencies
+userApp -[#DDA0DD]-> sharedLib : Uses Components & Services
+analyticsDashboard -[#DDA0DD]-> sharedLib : Uses Components & Services
+
+' Frontend to API
+userApp -[#4ECDC4]-> apigateway : User API Calls
+analyticsDashboard -[#4ECDC4]-> apigateway : Analytics API Calls
+firebase -[#FF6B6B]-> kinesisStream : Event Streaming
+websocket -[#FFA07A]-> springboot : Real-time Updates
+
+' API Layer
+apigateway -[#4ECDC4]-> springboot : Route Requests
+lb -[#DDA0DD]-> springboot : Load Balance
+
+' Processing Flow
+kinesisStream -[#FF6B6B]-> eventProcessor : Process Events
+eventProcessor -[#98D8C8]-> userProfiles : Update Profiles
+eventProcessor -[#98D8C8]-> userEvents : Store Events
+eventProcessor -[#F7DC6F]-> timestreamDB : Time-series Data
+
+' AI/ML Processing
+eventProcessor -[#BB8FCE]-> bedrockAgent : Trigger Analysis
+bedrockAgent -[#85C1E9]-> struggleDetector : Detect Struggles
+bedrockAgent -[#85C1E9]-> videoAnalyzer : Analyze Engagement
+bedrockAgent -[#85C1E9]-> interventionExecutor : Execute Actions
+
+struggleDetector -[#98D8C8]-> struggleSignals : Store Results
+videoAnalyzer -[#98D8C8]-> videoEngagement : Store Metrics
+interventionExecutor -[#F1948A]-> notifications : Send Alerts
+
+' ML Model Integration
+bedrockAgent -[#BB8FCE]-> sagemakerEndpoint : Predict Exit Risk
+bedrockAgent -[#BB8FCE]-> nova : Context Analysis
+
+' Data Storage
+springboot -[#98D8C8]-> userProfiles : Read/Write
+springboot -[#F7DC6F]-> timestreamDB : Query Analytics
+eventProcessor -[#FAD7A0]-> s3Bucket : Store Logs
+
+' Infrastructure
+vpc .[#D5DBDB].> eventProcessor : Network Security
+vpc .[#D5DBDB].> springboot : Secure Communication
+iamRoles .[#D5DBDB].> eventProcessor : Access Permissions
+monitoring .[#D5DBDB].> eventProcessor : Metrics & Logs
+
+' CDN
+cdn -[#4ECDC4]-> userApp : User App Assets
+cdn -[#4ECDC4]-> analyticsDashboard : Dashboard Assets
+
+note right of bedrockAgent
+  AI Agent orchestrates:
+  - Struggle detection
+  - Video intelligence
+  - Intervention decisions
+  - Context analysis
+end note
+
+note right of kinesisStream
+  Real-time processing:
+  - User events
+  - Video interactions
+  - System metrics
+  - Error tracking
+end note
+
+note right of timestreamDB
+  Time-series analytics:
+  - User behavior trends
+  - Performance metrics
+  - Engagement patterns
+  - Business KPIs
+end note
+
+@enduml
