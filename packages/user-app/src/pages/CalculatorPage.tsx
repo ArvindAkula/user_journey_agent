@@ -3,7 +3,7 @@ import InteractiveCalculator from '../components/InteractiveCalculator';
 import { useProductionEventTracking } from '../hooks/useProductionEventTracking';
 import { useInterventionListener } from '../hooks/useInterventionListener';
 import LiveChatPopup from '../components/LiveChatPopup';
-import { logPageView, logCalculation, logAnalyticsEvent } from '../config/firebase';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 
 const CalculatorPage: React.FC = () => {
   const [calculationsCompleted, setCalculationsCompleted] = useState(0);
@@ -45,8 +45,8 @@ const CalculatorPage: React.FC = () => {
     }, 100);
     
     // Also track in Firebase Analytics
-    logPageView('calculator', 'Calculator');
-  }, [trackPageView, trackEvent]);
+    firebaseAnalyticsService.trackPageView('Calculator', { page_name: 'calculator' });
+  }, [trackPageView, trackEvent, flushQueue]);
 
   const handleCalculationComplete = () => {
     setCalculationsCompleted(prev => prev + 1);
@@ -81,7 +81,10 @@ const CalculatorPage: React.FC = () => {
     }, 100);
     
     // Also track in Firebase Analytics
-    logCalculation('loan_calculator', true);
+    firebaseAnalyticsService.trackCalculatorEvent('calculation_complete', {
+      calculationType: 'loan_calculator',
+      success: true
+    });
   };
 
   const handleStruggleDetected = () => {
@@ -92,9 +95,10 @@ const CalculatorPage: React.FC = () => {
     console.log('📊 Tracked struggle signal');
     
     // Also track in Firebase Analytics
-    logAnalyticsEvent('struggle_detected', {
-      feature: 'calculator',
-      struggle_type: 'user_difficulty',
+    firebaseAnalyticsService.trackStruggleSignal('calculator', {
+      attemptCount: strugglesDetected + 1,
+      timeSpent: 0,
+      severity: 'medium'
     });
   };
 

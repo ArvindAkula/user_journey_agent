@@ -145,7 +145,7 @@
   - Create all-in-one development startup script
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 8. Implement secure credential management
+- [x] 8. Implement secure credential management
 - [x] 8.1 Set up environment variable validation
   - Create environment variable validation on backend startup
   - Create environment variable validation on frontend startup
@@ -153,27 +153,27 @@
   - Add detailed error messages for missing variables
   - _Requirements: 6.1, 6.2, 6.3, 6.5_
 
-- [ ] 8.2 Create environment templates
+- [x] 8.2 Create environment templates
   - Create .env.development.template with placeholder values
   - Create .env.production.template with placeholder values
   - Update .gitignore to exclude actual .env files
   - Document required environment variables
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 8.3 Implement encryption for sensitive data
+- [x] 8.3 Implement encryption for sensitive data
   - Update DataEncryptionService to use environment-specific encryption keys
   - Implement secure key storage
   - Add encryption for JWT secrets
   - _Requirements: 6.4_
 
-- [ ] 9. Move Firebase integration from /frontend to /user-app
-- [ ] 9.1 Migrate Firebase SDK to User App
+- [x] 9. Move Firebase integration from /frontend to /user-app
+- [x] 9.1 Migrate Firebase SDK to User App
   - Move Firebase initialization from /frontend to /user-app
   - Update Firebase configuration in User App
   - Remove Firebase dependencies from /frontend
   - _Requirements: 11.1, 11.6_
 
-- [ ] 9.2 Implement Firebase Analytics service
+- [x] 9.2 Implement Firebase Analytics service
   - Create FirebaseAnalyticsService in packages/user-app/src/services/
   - Implement event tracking methods (page views, custom events)
   - Implement calculator event tracking
@@ -181,7 +181,7 @@
   - Add user properties and user ID setting
   - _Requirements: 11.1, 11.2, 11.6, 11.8_
 
-- [ ] 9.3 Integrate Firebase Analytics in User App
+- [x] 9.3 Integrate Firebase Analytics in User App
   - Add Firebase Analytics tracking to all pages
   - Track calculator interactions
   - Track video engagement events
@@ -189,19 +189,19 @@
   - Track navigation and user flows
   - _Requirements: 11.1, 11.2, 11.8_
 
-- [ ] 9.4 Configure Firebase Analytics Debug View
+- [x] 9.4 Configure Firebase Analytics Debug View
   - Enable debug mode for development environment
   - Document how to use Firebase Analytics Debug View
   - _Requirements: 11.7_
 
-- [ ] 10. Set up BigQuery integration
-- [ ] 10.1 Configure Firebase Analytics BigQuery export
+- [x] 10. Set up BigQuery integration
+- [x] 10.1 Configure Firebase Analytics BigQuery export
   - Enable BigQuery export in Firebase console
   - Configure daily export schedule
   - Verify BigQuery dataset creation
   - _Requirements: 11.3_
 
-- [ ] 10.2 Create BigQuery analytics service
+- [x] 10.2 Create BigQuery analytics service
   - Create BigQueryAnalyticsService in backend
   - Implement historical event queries
   - Implement user journey analysis queries
@@ -209,48 +209,48 @@
   - Add error handling and retry logic
   - _Requirements: 11.4, 11.9_
 
-- [ ] 10.3 Update Analytics Dashboard to use BigQuery
+- [x] 10.3 Update Analytics Dashboard to use BigQuery
   - Integrate BigQueryAnalyticsService in backend controllers
   - Update Analytics Dashboard API calls for historical data
   - Keep real-time queries on DynamoDB
   - Add loading states for BigQuery queries
   - _Requirements: 11.4, 11.9_
 
-- [ ] 10.4 Implement dual-write strategy
+- [x] 10.4 Implement dual-write strategy
   - Configure events to write to both DynamoDB and Firebase Analytics
   - Add feature flag to control dual-write behavior
   - Monitor data consistency between systems
   - _Requirements: 11.5_
 
-- [ ] 10.5 Optimize event storage strategy
+- [x] 10.5 Optimize event storage strategy
   - Identify critical real-time events for DynamoDB
   - Configure non-critical events to Firebase Analytics only
   - Update event routing logic
   - Document event storage strategy
   - _Requirements: 11.5_
 
-- [ ]* 11. Testing and validation
-- [ ]* 11.1 Write authentication unit tests
+- [x] 11. Testing and validation
+- [x] 11.1 Write authentication unit tests
   - Test JWT token generation and validation
   - Test Firebase Auth integration
   - Test role-based access control
   - Test login/logout flows
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ]* 11.2 Write environment configuration unit tests
+- [x] 11.2 Write environment configuration unit tests
   - Test environment detection
   - Test configuration loading
   - Test service endpoint resolution
   - Test AWS client initialization
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 10.1, 10.2, 10.3_
 
-- [ ]* 11.3 Write Firebase Analytics unit tests
+- [x] 11.3 Write Firebase Analytics unit tests
   - Test event tracking methods
   - Test user property setting
   - Test environment-specific configuration
   - _Requirements: 11.1, 11.2, 11.6, 11.7, 11.8_
 
-- [ ]* 11.4 Write integration tests
+- [x] 11.4 Write integration tests
   - Test end-to-end authentication flow
   - Test environment switching
   - Test role-based access
@@ -258,7 +258,7 @@
   - Test BigQuery data retrieval
   - _Requirements: All requirements_
 
-- [ ]* 11.5 Perform manual testing
+- [x] 11.5 Perform manual testing
   - Test development mode with LocalStack and Firebase emulator
   - Test production mode with actual services
   - Test all three user roles (admin, analyst, viewer)
@@ -266,8 +266,8 @@
   - Verify BigQuery data export
   - _Requirements: All requirements_
 
-- [ ] 12. Documentation and deployment
-- [ ] 12.1 Create setup documentation
+- [x] 12. Documentation and deployment
+- [x] 12.1 Create setup documentation
   - Document development environment setup
   - Document production environment setup
   - Document authorized user configuration
@@ -275,26 +275,26 @@
   - Document BigQuery configuration
   - _Requirements: All requirements_
 
-- [ ] 12.2 Create user guides
+- [x] 12.2 Create user guides
   - Create user guide for logging in
   - Create admin guide for managing users
   - Create developer guide for environment switching
   - Create analytics guide for BigQuery queries
   - _Requirements: All requirements_
 
-- [ ] 12.3 Update deployment scripts
+- [x] 12.3 Update deployment scripts
   - Update deployment scripts for environment configuration
   - Add environment validation to deployment process
   - Create production deployment checklist
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.5_
 
-- [ ] 12.4 Document cost optimization
+- [x] 12.4 Document cost optimization
   - Document cost comparison between DynamoDB and BigQuery
   - Create cost monitoring dashboard
   - Document cost optimization best practices
   - _Requirements: 11.10_
 
-- [ ] 12.5 Create migration guide
+- [x] 12.5 Create migration guide
   - Document Firebase Analytics migration steps
   - Create data validation procedures
   - Document rollback procedures
@@ -393,7 +393,7 @@
 
 - [ ] 15.3 Create Analytics Dashboard production environment file
   - Create .env.production for Analytics Dashboard
-  - Set REACT_APP_API_BASE_URL to https://api.journey-analytics.io
+  - Set REACT_APP_API_BASE_URL to https://api.journey-analytics-admin.io
   - Configure production Firebase credentials
   - Set production feature flags
   - Enable admin-only features

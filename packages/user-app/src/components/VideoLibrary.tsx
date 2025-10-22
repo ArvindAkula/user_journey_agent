@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useEventTracking, EventService } from '@aws-agent/shared';
 import { config } from '../config';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 import './VideoLibrary.css';
 
 interface VideoLibraryProps {
@@ -343,6 +344,13 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ onVideoComplete }) => {
         duration: currentTime,
         completionRate: (currentTime / selectedVideo.duration) * 100
       });
+      
+      // Track in Firebase Analytics
+      firebaseAnalyticsService.trackVideoEvent('play', selectedVideo.id, {
+        duration: selectedVideo.duration,
+        position: currentTime,
+        videoTitle: selectedVideo.title
+      });
     }
   };
 
@@ -376,6 +384,14 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ onVideoComplete }) => {
           appVersion: '1.0.0',
           deviceModel: 'Browser'
         }
+      });
+      
+      // Track in Firebase Analytics
+      firebaseAnalyticsService.trackVideoEvent('pause', selectedVideo.id, {
+        duration: selectedVideo.duration,
+        position: pauseTime,
+        completionRate: (pauseTime / selectedVideo.duration) * 100,
+        videoTitle: selectedVideo.title
       });
     }
   };
@@ -426,6 +442,14 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ onVideoComplete }) => {
           appVersion: '1.0.0',
           deviceModel: 'Browser'
         }
+      });
+      
+      // Track in Firebase Analytics
+      firebaseAnalyticsService.trackVideoEvent('complete', selectedVideo.id, {
+        duration: selectedVideo.duration,
+        position: selectedVideo.duration,
+        completionRate: 100,
+        videoTitle: selectedVideo.title
       });
       
       onVideoComplete();

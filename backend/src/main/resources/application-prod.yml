@@ -50,6 +50,29 @@ firebase:
     enabled: false
 
 # =============================================================================
+# BigQuery Configuration - Production
+# =============================================================================
+bigquery:
+  enabled: ${BIGQUERY_ENABLED:true}
+  project-id: ${BIGQUERY_PROJECT_ID:${FIREBASE_PROJECT_ID}}
+  dataset-id: ${BIGQUERY_DATASET_ID:analytics_${FIREBASE_PROJECT_ID}}
+  credentials:
+    path: ${BIGQUERY_CREDENTIALS_PATH:${FIREBASE_CREDENTIALS_PATH}}
+
+# =============================================================================
+# Dual-Write Strategy Configuration - Production
+# =============================================================================
+dual-write:
+  enabled: ${DUAL_WRITE_ENABLED:false}  # Enable during migration period
+  fail-on-firebase-error: ${DUAL_WRITE_FAIL_ON_ERROR:false}  # Don't fail if Firebase write fails
+
+# =============================================================================
+# Event Storage Optimization - Production
+# =============================================================================
+event-storage:
+  optimization-enabled: ${EVENT_STORAGE_OPTIMIZATION:true}  # Route events based on criticality
+
+# =============================================================================
 # Bedrock Agent Configuration - Production
 # =============================================================================
 bedrock:

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useEventTracking, EventService } from '@aws-agent/shared';
 import { config } from '../config';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 import './DocumentUpload.css';
 
 interface DocumentUploadProps {
@@ -402,6 +403,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             appVersion: '1.0.0',
             deviceModel: 'Browser'
           }
+        });
+        
+        // Track in Firebase Analytics
+        firebaseAnalyticsService.trackDocumentUpload(selectedCategory, {
+          fileSize: file.size,
+          fileName: file.name,
+          success: true
         });
         
         onDocumentUploaded();

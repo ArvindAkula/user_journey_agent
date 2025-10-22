@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEventTracking, EventService } from '@aws-agent/shared';
 import { config } from '../config';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 import './InteractiveCalculator.css';
 
 interface InteractiveCalculatorProps {
@@ -380,6 +381,16 @@ const InteractiveCalculator: React.FC<InteractiveCalculatorProps> = ({
           appVersion: '1.0.0',
           deviceModel: 'Browser'
         }
+      });
+      
+      // Track in Firebase Analytics
+      firebaseAnalyticsService.trackCalculatorEvent('calculate', {
+        loanAmount: principal,
+        interestRate: parseFloat(interestRate),
+        termYears: parseInt(loanTerm),
+        monthlyPayment: monthlyPayment + additionalMonthlyPayment,
+        calculationType: 'mortgage',
+        success: true
       });
       
       onCalculationComplete();

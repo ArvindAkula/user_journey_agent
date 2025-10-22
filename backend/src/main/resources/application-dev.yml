@@ -56,6 +56,29 @@ firebase:
     port: 9099
 
 # =============================================================================
+# BigQuery Configuration - Development (Disabled)
+# =============================================================================
+bigquery:
+  enabled: false  # BigQuery not available in dev mode
+  project-id: user-journey-analytics-dev
+  dataset-id: analytics_dev
+  credentials:
+    path: classpath:firebase-service-account-dev.json
+
+# =============================================================================
+# Dual-Write Strategy Configuration - Development
+# =============================================================================
+dual-write:
+  enabled: false  # Disabled in dev mode
+  fail-on-firebase-error: false
+
+# =============================================================================
+# Event Storage Optimization - Development
+# =============================================================================
+event-storage:
+  optimization-enabled: false  # Disabled in dev mode
+
+# =============================================================================
 # Bedrock Agent Configuration - Development
 # =============================================================================
 bedrock:

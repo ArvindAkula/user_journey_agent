@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DocumentUpload from '../components/DocumentUpload';
 import { useProductionEventTracking } from '../hooks/useProductionEventTracking';
-import { logPageView, logDocumentUpload, logAnalyticsEvent } from '../config/firebase';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 
 const DocumentUploadPage: React.FC = () => {
   const [documentsUploaded, setDocumentsUploaded] = useState(0);
@@ -14,7 +14,7 @@ const DocumentUploadPage: React.FC = () => {
     console.log('📊 Tracked page view: documents');
     
     // Also track in Firebase Analytics
-    logPageView('documents', 'Document Upload');
+    firebaseAnalyticsService.trackPageView('Document Upload', { page_name: 'documents' });
   }, [trackPageView]);
 
   const handleDocumentUploaded = () => {
@@ -25,7 +25,7 @@ const DocumentUploadPage: React.FC = () => {
     console.log('📊 Tracked document upload');
     
     // Also track in Firebase Analytics
-    logDocumentUpload('document', true);
+    firebaseAnalyticsService.trackDocumentUpload('document', { success: true });
   };
 
   const handleStruggleDetected = () => {
@@ -36,9 +36,10 @@ const DocumentUploadPage: React.FC = () => {
     console.log('📊 Tracked struggle signal');
     
     // Also track in Firebase Analytics
-    logAnalyticsEvent('struggle_detected', {
-      feature: 'document_upload',
-      struggle_type: 'upload_difficulty',
+    firebaseAnalyticsService.trackStruggleSignal('document_upload', {
+      attemptCount: strugglesDetected + 1,
+      timeSpent: 0,
+      severity: 'medium'
     });
   };
 

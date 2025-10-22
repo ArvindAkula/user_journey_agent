@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from '@aws-agent/shared';
 import ProductionErrorBoundary from './components/ProductionErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
@@ -8,6 +8,7 @@ import AuthWrapper from './components/Auth/AuthWrapper';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserHeader from './components/UserHeader';
 import LoadingSpinner from './components/LoadingSpinner';
+import NavigationTracker from './components/NavigationTracker';
 import { validateOnStartup } from './config/envValidation';
 // import usePerformanceMonitoring from './hooks/usePerformanceMonitoring'; // Disabled for demo
 import { cdnManager } from './utils/cdnHelpers';
@@ -59,6 +60,7 @@ function App() {
     <ErrorBoundaryComponent level="app">
       <AuthProvider>
         <Router>
+            <NavigationTracker />
             <div className="App">
               <ErrorBoundaryComponent level="page">
                 <AuthWrapper requireAuth={false}>

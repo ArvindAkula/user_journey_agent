@@ -92,21 +92,11 @@ load_environment() {
     source "$ENV_FILE"
     set +a
     
-    # Validate critical environment variables
-    local required_vars=(
-        "AWS_REGION"
-        "AWS_ACCESS_KEY_ID" 
-        "AWS_SECRET_ACCESS_KEY"
-        "FIREBASE_PROJECT_ID"
-        "JWT_SECRET"
-        "REDIS_PASSWORD"
-    )
-    
-    for var in "${required_vars[@]}"; do
-        if [ -z "${!var}" ]; then
-            error_exit "Required environment variable $var is not set"
-        fi
-    done
+    # Run comprehensive environment validation
+    log_info "Running environment validation..."
+    if ! "$SCRIPT_DIR/validate-production-config.sh"; then
+        error_exit "Environment validation failed. Please fix configuration errors before deploying."
+    fi
     
     log_info "Environment loaded and validated"
 }

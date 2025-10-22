@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import VideoLibrary from '../components/VideoLibrary';
 import { useProductionEventTracking } from '../hooks/useProductionEventTracking';
-import { logPageView, logVideoEngagement } from '../config/firebase';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 
 const VideoLibraryPage: React.FC = () => {
   const [videosCompleted, setVideosCompleted] = useState(0);
@@ -13,7 +13,7 @@ const VideoLibraryPage: React.FC = () => {
     console.log('📊 Tracked page view: video_library');
     
     // Also track in Firebase Analytics
-    logPageView('video_library', 'Video Library');
+    firebaseAnalyticsService.trackPageView('Video Library', { page_name: 'video_library' });
   }, [trackPageView]);
 
   const handleVideoComplete = () => {
@@ -23,8 +23,10 @@ const VideoLibraryPage: React.FC = () => {
     trackVideoEngagement('video_completed', 'complete', 100);
     console.log('📊 Tracked video completion in AWS');
     
-    // Also track in Firebase Analytics with proper event name
-    logVideoEngagement('tutorial_video', 'complete', 100);
+    // Also track in Firebase Analytics
+    firebaseAnalyticsService.trackVideoEvent('complete', 'tutorial_video', {
+      completionRate: 100
+    });
     console.log('🔥 Tracked video completion in Firebase');
   };
 

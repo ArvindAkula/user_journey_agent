@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@aws-agent/shared';
 import { useProductionEventTracking } from '../hooks/useProductionEventTracking';
-import { logPageView, logFeatureInteraction } from '../config/firebase';
+import { firebaseAnalyticsService } from '../services/FirebaseAnalyticsService';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
@@ -14,7 +14,7 @@ const HomePage: React.FC = () => {
     console.log('📊 Tracked page view: home');
     
     // Also track in Firebase Analytics
-    logPageView('home', 'Home Page');
+    firebaseAnalyticsService.trackPageView('Home Page', { page_name: 'home' });
   }, [trackPageView]);
 
   const handleFeatureClick = (feature: string) => {
@@ -23,7 +23,7 @@ const HomePage: React.FC = () => {
     console.log(`📊 Tracked feature interaction: ${feature}`);
     
     // Also track in Firebase Analytics
-    logFeatureInteraction(feature, 'click', true);
+    firebaseAnalyticsService.trackFeatureInteraction(feature, 'click', { success: true });
   };
 
   return (
