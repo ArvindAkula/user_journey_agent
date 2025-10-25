@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-10-25T15:03:14Z",
+  "project": "user-journey-analytics",
+  "sagemaker": null,
+  "kinesis": {
+    "stream_name": "user-journey-analytics-user-events",
+    "shard_count": 3
+  },
+  "lambda": [
+    {
+      "name": "event_processor",
+      "reserved_concurrency": 0
+    },
+    {
+      "name": "intervention-executor",
+      "reserved_concurrency": 0
+    }
+  ],
+  "cloudwatch": {
+    "alarm_count": 9
+  }
+}
